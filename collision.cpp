@@ -355,6 +355,8 @@ void Collision_Update(void)
 	Collision_Bullet_vs_Boss();
 	Collision_Player_vs_BossBullet();
 	Collision_Player_vs_BossLaser();*/
+
+	PlayerInfoMatch(player);
 }
 
 void Collision_Player_vs_Enemy(void)
@@ -370,12 +372,14 @@ void Collision_Player_vs_Enemy(void)
 			// プレイヤーのコリジョンとエネミーのコリジョン
 			if (HitCupsule(Enemy_GetCollision(i), player.foot[0]))
 			{
+				player.commbo = 1;
 				Game_AddScore(200);
 				// 当たってる
 				Enemy_Destroy(i);
 			}
 			if (HitCupsule(Enemy_GetCollision(i), player.foot[1]))
 			{
+				player.commbo = 1;
 				Game_AddScore(200);
 				// 当たってる
 				Enemy_Destroy(i);

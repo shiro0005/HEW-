@@ -76,7 +76,8 @@ void Player_Initialize(void)
 	player.foot[1].s.p.y = player.pos.y;
 	player.foot[1].s.v.x = 10;
 	player.foot[1].s.v.y = 20;
-			
+		
+	player.commbo = 0;
 	player.hitpoint = 10;
 	olddmg = 10;
 	player.firstAT = false;
@@ -588,3 +589,6 @@ PLAYER GetPlayer() {
 	return player;
 }
 
+void PlayerInfoMatch(PLAYER info) {
+	player = info;
+}
