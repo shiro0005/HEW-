@@ -45,8 +45,9 @@ typedef struct
 
 }BOSS_DATA;
 
+//グローバル変数
 BOSS_DATA boss[BOSS_COUNT];
-
+static PLAYER player;
 
 typedef enum
 {
@@ -96,6 +97,9 @@ void Boss_Finalize(void)
 
 void Boss_Update(void)
 {
+	//player構造体の情報を取得
+	player = GetPlayer();
+
 	for (int i = 0; i < BOSS_COUNT; i++) {
 
 		//当たり判定用座標の更新
@@ -266,7 +270,7 @@ void Boss_StateSearch(int index)
 	}
 
 	//プレイヤーの座標を取得する
-	D3DXVECTOR2 pl_pos = D3DXVECTOR2(Player_GetCollision()->s.p.x, Player_GetCollision()->s.p.y);
+	D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
 
 	//敵とプレイヤーの距離を計算する
 	D3DXVECTOR2 vLen = boss[index].pos - pl_pos;
@@ -326,7 +330,7 @@ void Boss_StateChase(int index)
 	boss[index].frame++;
 
 	//プレイヤーの座標を取得する
-	D3DXVECTOR2 pl_pos = D3DXVECTOR2(Player_GetCollision()->s.p.x, Player_GetCollision()->s.p.y);
+	D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
 
 	D3DXVECTOR2 dir = pl_pos - boss[index].pos;
 	D3DXVec2Normalize(&dir, &dir);
@@ -424,7 +428,7 @@ void Boss_StateReturn(int index)
 	boss[index].frame++;
 
 	//プレイヤーの座標を取得する
-	D3DXVECTOR2 pl_pos = D3DXVECTOR2(Player_GetCollision()->s.p.x, Player_GetCollision()->s.p.y);
+	D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
 
 	//帰還する座標への向きベクトルを計算する
 	D3DXVECTOR2 dir = boss[index].pos_return - boss[index].pos;

@@ -19,22 +19,6 @@
 #define ANIME_PATTERN_SKIPFRAME 8
 
 
-typedef struct
-{
-	D3DXVECTOR2 pos;			//位置
-	int			muki;			//向き
-	int			color;			//色
-	D3DXVECTOR2 speed;          //プレイヤー移動
-	int			animePattern;	//アニメパターン
-	bool        firstAT;        //初動攻撃
-	int			mode;            //プレイヤー状態
-
-	Capsule2D   collision;		//カプセルの当たり判定
-	Capsule2D   foot[2];        //足をカプセルで当たり判定を作る　[0]右足　[1]左足   
-	int			hitpoint;		//ヒットポイント
-	float rotate;
-
-}PLAYER;
 
 typedef struct
 {
@@ -46,8 +30,9 @@ typedef struct
 	int cntdata;//前のフレームと同じ結果の時に加算
 }STICK;
 
-STICK stick;
+//グローバル変数
 PLAYER player;
+STICK stick;
 static int cnt;
 static int frame;
 static int olddmg;//過去のダメージ
@@ -566,18 +551,31 @@ void Player_Draw(void)
 		6.0f,
 		player.rotate);
 }
-const Capsule2D* Player_GetCollision()
-{
-	return &player.collision;
-}
-const Capsule2D* Player_GetCollisionFR()
-{
-	return &player.foot[0];
-}
-const Capsule2D* Player_GetCollisionFL()
-{
-	return &player.foot[1];
-}
+
+//const Capsule2D* Player_GetCollision()
+//{
+//	return &player.collision;
+//}
+//const Capsule2D* Player_GetCollisionFR()
+//{
+//	return &player.foot[0];
+//}
+//const Capsule2D* Player_GetCollisionFL()
+//{
+//	return &player.foot[1];
+//}
+//float Player_Getdir() {
+//	return player.speed.x;
+//}
+//
+//bool GetfirstAT() {
+//	return player.firstAT;
+//}
+//
+//int Player_GetHitPoint()
+//{
+//	return player.hitpoint;
+//}
 
 void Player_AddDamage(int damage)
 {
@@ -586,15 +584,7 @@ void Player_AddDamage(int damage)
 		player.hitpoint = 0;
 }
 
-float Player_Getdir() {
-	return player.speed.x;
+PLAYER GetPlayer() {
+	return player;
 }
 
-bool GetfirstAT() {
-	return player.firstAT;
-}
-
-int Player_GetHitPoint()
-{
-	return player.hitpoint;
-}

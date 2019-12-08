@@ -31,7 +31,7 @@ typedef enum PHASE_INDEX
 
 static PHASE_INDEX g_Phase;
 static int g_GameFrameCount;
-
+static PLAYER player;
 static int g_Score = 0;// 点数
 static int g_KillCount = 0;
 static int g_Bosskill = 0;
@@ -74,6 +74,9 @@ void Game_Finalize(void)
 
 void Game_Update(void)
 {
+	//player構造体の情報を取得
+	player = GetPlayer();
+
 	switch(g_Phase)
 	{
 	case PHASE_INDEX_FADE:
@@ -153,7 +156,7 @@ void Game_Draw(void)
 	BossLaser_Draw();*/
 	Explosion_Draw();
 	//ライフスコア表示
-	Score_Draw(0, 0, Player_GetHitPoint(), 2, true);
+	Score_Draw(0, 0, player.hitpoint, 2, true);
 	Score_Draw(800, 0,g_Score, 7, true);
 }
 
@@ -165,7 +168,7 @@ bool Game_Bossappear(void)
 		return true;
 	}
 
-	if (Player_GetHitPoint() <= 0)
+	if (player.hitpoint <= 0)
 		return true;
 
 	return false;
@@ -181,7 +184,7 @@ bool Game_EndCheck(void)
 	if(g_KillCount>=3)
 		return true;
 
-	if (Player_GetHitPoint() <= 0)
+	if (player.hitpoint <= 0)
 		return true;
 
 	return false;

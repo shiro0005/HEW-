@@ -29,6 +29,7 @@ ENEMY_DATA enemy[ENEMY_COUNT];
 
 D3DXVECTOR2 dir;		//腕の向き
 
+static PLAYER player;//player構造体の情報
 
 typedef enum
 {
@@ -82,6 +83,9 @@ void Enemy_Finalize(void)
 
 void Enemy_Update(void)
 {
+	//player構造体の情報を取得
+	player = GetPlayer();
+
 	for (int i = 0; i<ENEMY_COUNT; i++){
 		if (enemy[i].move == FALSE)
 		{
@@ -135,7 +139,7 @@ void Enemy_Update(void)
 			//フレームは元に戻す
 			enemy[i].animeFrame = 0;
 			
-			enemy[i].pos.x -= Player_Getdir() * 10;//エネミーをプレイヤーの移動と合わせる
+			enemy[i].pos.x -= player.speed.x * 10;//エネミーをプレイヤーの移動と合わせる
 		}
 
 		switch (enemy[i].state)
@@ -197,7 +201,7 @@ void Enemy_Draw(void)
 void Enemy_Destroy(int index)
 {
 	enemy[index].move = FALSE;
-	D3DXVECTOR2 pl_pos = D3DXVECTOR2(Player_GetCollision()->s.p.x, Player_GetCollision()->s.p.y);
+	D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
 
 	if (pl_pos.x - enemy[index].pos.x < 0)
 	{
@@ -371,7 +375,7 @@ void Enemy_StateChase(int index)
 {
 
 	//プレイヤーの座標を取得する
-	D3DXVECTOR2 pl_pos = D3DXVECTOR2(Player_GetCollision()->s.p.x, Player_GetCollision()->s.p.y);
+	D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
 	
 	D3DXVECTOR2 dir = pl_pos - enemy[index].pos;
 	float muki = pl_pos.x - enemy[index].pos.x;

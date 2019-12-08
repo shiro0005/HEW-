@@ -17,17 +17,21 @@
 #include "stage.h"
 #include "game.h"
 
+//グローバル変数
+static PLAYER player;
+
+//プロトタイプ宣言
 bool HitCupsule(const CIRCLE* p_circle, const CUPSULE* p_cupsule);
 bool HitCupsule(const Capsule2D* c1, const Capsule2D* c2);
+bool HitCupsule(const Capsule2D c1, const Capsule2D* c2);
+bool HitCupsule(const Capsule2D* c1, const Capsule2D c2);
 void Collision_Player_vs_Enemy(void);
 void Collision_Enemy_hand_vs_Player(void);
-
 static bool HitCircle(const CIRCLE* pCircle_a, const CIRCLE* pCircle_b);
 void Collision_Player_vs_Enemy(void);
 //void Collision_Bullet_vs_Enemy(void);
 //void Collision_Player_vs_EnemyBullet(void);
 //void Collision_Player_vs_EnemyLaser(void);
-
 void Collision_Player_vs_Boss(void);
 //void Collision_Bullet_vs_Boss(void);
 //void Collision_Player_vs_BossBullet(void);
@@ -312,7 +316,6 @@ float calcSegmentSegmentDist2D(const Segment2D &s1, const Segment2D &s2,
 	//return false;
 }
 
-
 bool HitCupsule(const Capsule2D* c1, const Capsule2D* c2) {
 	Point2D p1, p2;
 	float t1, t2;
@@ -320,12 +323,30 @@ bool HitCupsule(const Capsule2D* c1, const Capsule2D* c2) {
 	return (d <= c1->r + c2->r);
 }
 
+bool HitCupsule(const Capsule2D c1, const Capsule2D* c2) {
+	Point2D p1, p2;
+	float t1, t2;
+	float d = calcSegmentSegmentDist2D(c1.s, c2->s, p1, p2, t1, t2);
+	return (d <= c1.r + c2->r);
+}
+
+bool HitCupsule(const Capsule2D* c1, const Capsule2D c2) {
+	Point2D p1, p2;
+	float t1, t2;
+	float d = calcSegmentSegmentDist2D(c1->s, c2.s, p1, p2, t1, t2);
+	return (d <= c1->r + c2.r);
+}
+
+
 void Collision_Initialize(void)
 {
 }
 
 void Collision_Update(void)
 {
+	//player構造体の情報を取得
+	player = GetPlayer();
+
 	Collision_Player_vs_Enemy();
 	Collision_Enemy_hand_vs_Player();
 	/*Collision_Bullet_vs_Enemy();
@@ -345,15 +366,15 @@ void Collision_Player_vs_Enemy(void)
 			continue;
 		}
 
-		if (GetfirstAT()) {
+		if (player.firstAT) {
 			// プレイヤーのコリジョンとエネミーのコリジョン
-			if (HitCupsule(Enemy_GetCollision(i), Player_GetCollisionFR()))
+			if (HitCupsule(Enemy_GetCollision(i), player.foot[0]))
 			{
 				Game_AddScore(200);
 				// 当たってる
 				Enemy_Destroy(i);
 			}
-			if (HitCupsule(Enemy_GetCollision(i), Player_GetCollisionFL()))
+			if (HitCupsule(Enemy_GetCollision(i), player.foot[1]))
 			{
 				Game_AddScore(200);
 				// 当たってる
@@ -374,7 +395,7 @@ void Collision_Enemy_hand_vs_Player(void)
 		if (Bullet_Iscool(i) == true)
 		{
 			// 弾のコリジョンとエネミーのコリジョン
-			if (HitCupsule(Player_GetCollision(), Bullet_GetCollision(i)))
+			if (HitCupsule(player.collision, Bullet_GetCollision(i)))
 			{
 				// 当たってる
 				Player_AddDamage(1);

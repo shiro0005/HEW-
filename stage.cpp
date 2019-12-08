@@ -18,13 +18,16 @@ bool flg2;//スクロールテクスチャ2を動かすフラグ
 bool flg_bgchange1, flg_bgchange2;
 int bgnum1, bgnum2;*/
 
-static float Playerpos;
-
 typedef struct
 {
 	D3DXVECTOR2 pos; //スクロールテクスチャの位置
 
 }FIELD_DATA;
+
+//グローバル変数
+static float Playerpos;
+static PLAYER player;
+
 
 FIELD_DATA field[2];
 
@@ -49,7 +52,10 @@ void Field1_Initialize(void)
 
 void Field1_Update(void)
 {
-	field[0].pos.x -= Player_Getdir();//背景をプレイヤーの移動と合わせる
+	//player構造体の情報を取得
+	player = GetPlayer();
+
+	field[0].pos.x -= player.speed.x;//背景をプレイヤーの移動と合わせる
 	if (field[0].pos.x != 0) {
 		if (field[0].pos.x > 0) {
 			field[1].pos.x = field[0].pos.x - 1024.0f;
