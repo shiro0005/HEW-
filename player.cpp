@@ -81,6 +81,7 @@ void Player_Initialize(void)
 	player.hitpoint = 10;
 	olddmg = 10;
 	player.firstAT = false;
+	player.frontAT = false;
 	cnt = 0;
 	frame = 0;
 	for (int i = 0; i < 10; i++) {
@@ -455,7 +456,10 @@ void Player_Update(void)
 
 
 	//ˆÚ“®’lÝ’è
-	if (stick.rote[0]) {
+	if (player.firstAT || player.frontAT) {
+		player.speed.x = 0;
+	}
+	else if (stick.rote[0]) {
 		player.speed.x = 5.0f;
 	}
 	else if (stick.rote[1]) {
@@ -466,22 +470,49 @@ void Player_Update(void)
 	}
 
 	//‰“®UŒ‚
-	if (stick.rote[0] || stick.rote[1]) {//‰ñ“]’†‚È‚ç
+	if ((stick.rote[0] || stick.rote[1])&&!player.firstAT) {//‰ñ“]’†‚È‚ç
 		if (GamePad_IsPress(0, BUTTON_C)) {
+			player.mode = 0;
 			player.firstAT = true;
+			frame = 0;
 		}
 	}
 
 	if (player.firstAT) {
 		frame++;
-		if (frame % 5 == 0) {
+		if (frame % 10 == 0) {
 			player.animePattern++;
 		}
 		if (player.animePattern == 8) {
 			player.animePattern = 0;
 			player.firstAT = false;
+
 		}
 	}
+
+	//‘OUŒ‚
+	if (player.commbo>=1 && player.animePattern >= 3) {//‰ñ“]’†‚È‚ç
+		if (GamePad_IsPress(0, BUTTON_C) && stick.F[6]) {
+			player.frontAT = true;
+			player.firstAT = false;
+			frame = 0;
+			player.mode = 2;
+			player.animePattern = 0;
+		}
+	}
+
+	if (player.frontAT) {
+		frame++;
+		if (frame % 10 == 0) {
+			player.animePattern++;
+		}
+		if (player.animePattern == 8) {
+			player.animePattern = 0;
+			player.frontAT = false;
+		}
+	}
+
+	
 
 
 	if (player.hitpoint!=olddmg) {

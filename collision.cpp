@@ -368,21 +368,21 @@ void Collision_Player_vs_Enemy(void)
 			continue;
 		}
 
-		if (player.firstAT) {
+		if (player.firstAT||player.frontAT) {
 			// プレイヤーのコリジョンとエネミーのコリジョン
 			if (HitCupsule(Enemy_GetCollision(i), player.foot[0]))
 			{
 				player.commbo = 1;
 				Game_AddScore(200);
 				// 当たってる
-				Enemy_Destroy(i);
+				//Enemy_Destroy(i);
 			}
 			if (HitCupsule(Enemy_GetCollision(i), player.foot[1]))
 			{
 				player.commbo = 1;
 				Game_AddScore(200);
 				// 当たってる
-				Enemy_Destroy(i);
+				//Enemy_Destroy(i);
 			}
 		}
 	}

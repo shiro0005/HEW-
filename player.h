@@ -11,6 +11,7 @@ typedef struct
 	D3DXVECTOR2 speed;          //プレイヤー移動
 	int			animePattern;	//アニメパターン
 	bool        firstAT;        //初動攻撃
+	bool        frontAT;        //前攻撃
 	int			mode;           //プレイヤー状態
 	int         commbo;			//プレイヤーコンボ数
 	Capsule2D   collision;		//カプセルの当たり判定
