@@ -4,6 +4,7 @@
 typedef struct
 {
 	int			enable;	//生存フラグ
+	int			hp;
 
 	D3DXVECTOR2 pos;	//位置
 	float		rot;	//回転
@@ -11,7 +12,7 @@ typedef struct
 	int			muki;	//向き（移動方向）
 	int			animePattern;	//アニメパターン
 	int			animeFrame;		//パターン切り替えウエイト
-
+	float       t;
 	
 	Capsule2D   colcol;
 
@@ -40,3 +41,6 @@ void Enemy_Destroy(int index);
 bool Enemy_IsEnable(int index);
 const Capsule2D* Enemy_GetCollision(int index);
 void Enemy_Attack(int index);
+int Enemy_AddDamage(int damage, int index);
+int Enemy_GetHitPoint(int index);
+void Enemy_NockBack(int index);

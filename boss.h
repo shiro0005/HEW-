@@ -14,5 +14,7 @@ bool Boss_IsEnable(int index);
 
 int Boss_AddDamage(int damage);
 int Boss_GetHitPoint();
-const CUPSULE* Boss_GetCollision(int index);
+//const Capsule2D* Boss_GetCollision(int index);
 void Boss_StateInit(int index);
+void Boss_Attack(int index);
+void Boss_NockBack(int index);

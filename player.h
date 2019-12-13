@@ -12,12 +12,14 @@ typedef struct
 	int			animePattern;	//アニメパターン
 	bool        firstAT;        //初動攻撃
 	bool        frontAT;        //前攻撃
+	bool		attackcol;		//当たり判定を連続で読み込まないためのbool
 	int			mode;           //プレイヤー状態
 	int         commbo;			//プレイヤーコンボ数
 	Capsule2D   collision;		//カプセルの当たり判定
 	Capsule2D   foot[2];        //足をカプセルで当たり判定を作る　[0]右足　[1]左足   
 	int			hitpoint;		//ヒットポイント
-	float rotate;
+	float       rotate;			//プレイヤーの角度
+	int         state;          //プレイヤーの状態
 
 }PLAYER;
 

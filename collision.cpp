@@ -32,7 +32,7 @@ void Collision_Player_vs_Enemy(void);
 //void Collision_Bullet_vs_Enemy(void);
 //void Collision_Player_vs_EnemyBullet(void);
 //void Collision_Player_vs_EnemyLaser(void);
-void Collision_Player_vs_Boss(void);
+//void Collision_Player_vs_Boss(void);
 //void Collision_Bullet_vs_Boss(void);
 //void Collision_Player_vs_BossBullet(void);
 //void Collision_Player_vs_BossLaser(void);
@@ -347,8 +347,11 @@ void Collision_Update(void)
 	//player構造体の情報を取得
 	player = GetPlayer();
 
+	
 	Collision_Player_vs_Enemy();
 	Collision_Enemy_hand_vs_Player();
+	//Collision_Player_vs_Boss();
+	//Collision_Player_vs_BossBullet();
 	/*Collision_Bullet_vs_Enemy();
 	Collision_Player_vs_EnemyBullet();
 	Collision_Player_vs_EnemyLaser();
@@ -372,21 +375,70 @@ void Collision_Player_vs_Enemy(void)
 			// プレイヤーのコリジョンとエネミーのコリジョン
 			if (HitCupsule(Enemy_GetCollision(i), player.foot[0]))
 			{
-				player.commbo = 1;
-				Game_AddScore(200);
-				// 当たってる
-				//Enemy_Destroy(i);
+				if (player.attackcol) {
+					player.commbo = 1;
+					Game_AddScore(200);
+					// 当たってる
+					Enemy_NockBack(i);
+					Enemy_AddDamage(1, i);
+					//当たり判定を消す
+					player.attackcol = false;
+				}
 			}
 			if (HitCupsule(Enemy_GetCollision(i), player.foot[1]))
 			{
-				player.commbo = 1;
-				Game_AddScore(200);
-				// 当たってる
-				//Enemy_Destroy(i);
+				if (player.attackcol) {
+					player.commbo = 1;
+					Game_AddScore(200);
+					// 当たってる
+					Enemy_NockBack(i);
+					Enemy_AddDamage(1, i);
+					//当たり判定を消す
+					player.attackcol = false;
+				}
 			}
 		}
 	}
 }
+
+//void Collision_Player_vs_Boss(void)
+//{
+//	for (int i = 0; i < BOSS_COUNT; i++) {
+//
+//		// エネミーは有効か？
+//		if (!Boss_IsEnable(i)) {
+//			continue;
+//		}
+//
+//		if (player.firstAT) {
+//			// プレイヤーのコリジョンとエネミーのコリジョン
+//			if (HitCupsule(Boss_GetCollision(i), player.foot[0]))
+//			{
+//				if (Player_GetAttackcol())
+//				{
+//					Game_AddScore(200);
+//					// 当たってる
+//					Boss_AddDamage(1);
+//					Boss_NockBack(i);
+//					//当たり判定を消す
+//					Player_boolfalse();
+//				}
+//			}
+//			if (HitCupsule(Boss_GetCollision(i), player.foot[1]))
+//			{
+//				if (Player_GetAttackcol())
+//				{
+//					Game_AddScore(200);
+//					// 当たってる
+//					Boss_AddDamage(1);
+//					Boss_NockBack(i);
+//					//当たり判定を消す
+//					Player_boolfalse();
+//				}
+//			}
+//		}
+//	}
+//}
 
 void Collision_Enemy_hand_vs_Player(void)
 {
@@ -523,24 +575,6 @@ bool Collision_HitCheck_TileMap(D3DXVECTOR2 dst, D3DXVECTOR2* pOut)
 	return hit;
 }
 
-void Collision_Player_vs_Boss(void)
-{
-	for (int i = 0; i < BOSS_COUNT; i++) {
-
-		// ボスは有効か？
-		if (!Boss_IsEnable(i)) {
-			continue;
-		}
-
-		// プレイヤーのコリジョンとボスのコリジョン
-		//if (HitCupsule(Player_GetCollision(), Boss_GetCollision(i)))
-		//{
-		//	// 当たってる
-		//	Boss_Destroy(i);
-		//}
-	}
-}
-
 /*void Collision_Player_vs_BossBullet(void)
 {
 	for (int i = 0; i < BOSSBULLET_MAX; i++) {
@@ -644,3 +678,24 @@ void Collision_Bullet_vs_Boss(void)
 	}
 }*/
 
+//void Collision_Player_vs_BossBullet(void)
+//{
+//	for (int i = 0; i < BOSSBULLET_MAX; i++)
+//	{
+//		// 弾は有効か？
+//		if (!BossBullet_IsEnable(i))
+//			continue;
+//
+//		if (BossBullet_Iscool(i) == true)
+//		{
+//			// 弾のコリジョンとエネミーのコリジョン
+//			if (HitCupsule(player.collision, BossBullet_GetCollision(i)))
+//			{
+//				// 当たってる
+//				Player_AddDamage(1);
+//			}
+//
+//			BossBullet_IscoolFlase(i);
+//		}
+//	}
+//}

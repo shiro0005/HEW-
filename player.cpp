@@ -18,7 +18,16 @@
 #define ANIME_PATTERN_MAX		3
 #define ANIME_PATTERN_SKIPFRAME 8
 
+typedef enum {
+	PLAYER_INIT,//‘Ò‹@ó‘Ô
+	PLAYER_MOVE,//ˆÚ“®
+	PLAYER_FIRSTAT,//‰“®UŒ‚
+	PLAYER_FRONTAT,//‘OUŒ‚
+	PLAYER_DAMAGE,//”íƒ_ƒ[ƒW
+	PLAYER_DEATH,//Ž€–S
 
+	PLAYER_MAX
+}PLAYER_STATE;
 
 typedef struct
 {
@@ -78,8 +87,10 @@ void Player_Initialize(void)
 	player.foot[1].s.v.y = 20;
 		
 	player.commbo = 0;
+	player.animePattern = 0;
 	player.hitpoint = 10;
 	olddmg = 10;
+	player.attackcol = true;
 	player.firstAT = false;
 	player.frontAT = false;
 	cnt = 0;
@@ -486,23 +497,26 @@ void Player_Update(void)
 		if (player.animePattern == 8) {
 			player.animePattern = 0;
 			player.firstAT = false;
+			player.attackcol = true;
 
 		}
 	}
 
 	//‘OUŒ‚
-	if (player.commbo>=1 && player.animePattern >= 3) {//‰ñ“]’†‚È‚ç
+	if (player.commbo>=1&&player.animePattern>=3) {//‰ñ“]’†‚È‚ç
 		if (GamePad_IsPress(0, BUTTON_C) && stick.F[6]) {
 			player.frontAT = true;
 			player.firstAT = false;
 			frame = 0;
 			player.mode = 2;
 			player.animePattern = 0;
+			player.rotate = 20.0f;
 		}
 	}
 
 	if (player.frontAT) {
 		frame++;
+		player.rotate = frame * 2.0f;
 		if (frame % 10 == 0) {
 			player.animePattern++;
 		}

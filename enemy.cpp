@@ -28,6 +28,9 @@
 ENEMY_DATA enemy[ENEMY_COUNT];
 
 D3DXVECTOR2 dir;		//腕の向き
+ 
+D3DXVECTOR2 destroy_pos[ENEMY_COUNT];
+int destroy_dir;
 
 static PLAYER player;//player構造体の情報
 
@@ -87,6 +90,11 @@ void Enemy_Update(void)
 	player = GetPlayer();
 
 	for (int i = 0; i<ENEMY_COUNT; i++){
+
+		if (enemy[i].hp <= 0) {
+			Enemy_Destroy(i);
+		}
+
 		if (enemy[i].move == FALSE)
 		{
 			if (!Enemy_IsEnable(i)) {
@@ -117,6 +125,19 @@ void Enemy_Update(void)
 				enemy[i].enable = FALSE;
 				Game_AddKillCount();
 				break;
+			}
+		}
+
+		for (int i = 0; i < ENEMY_COUNT; i++)
+		{
+			if (enemy[i].hp >= 1)
+			{
+				if (enemy[i].t <= 1)
+				{//ノックバック
+					enemy[i].pos.x = destroy_pos[i].x + (enemy[i].t*destroy_dir*150.0f);
+					enemy[i].pos.y = destroy_pos[i].y - (3 * enemy[i].t*((1 - enemy[i].t)*(1 - enemy[i].t)))*150.0f;
+					enemy[i].t = enemy[i].t + 0.02;
+				}
 			}
 		}
 
@@ -201,9 +222,7 @@ void Enemy_Draw(void)
 void Enemy_Destroy(int index)
 {
 	enemy[index].move = FALSE;
-	D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
-
-	if (pl_pos.x - enemy[index].pos.x < 0)
+	if (destroy_dir == 1)
 	{
 		enemy[index].dir_destroy.x = 2.0f;
 	}
@@ -214,7 +233,7 @@ void Enemy_Destroy(int index)
 	enemy[index].dir_destroy.y = -1.5f;
 	D3DXVec2Normalize(&enemy[index].dir_destroy, &enemy[index].dir_destroy);
 
-	enemy[index].dir_destroy*=ENEMY_DESTROY_SPEED;
+	enemy[index].dir_destroy *= ENEMY_DESTROY_SPEED;
 }
 
 bool Enemy_IsEnable(int index)
@@ -269,6 +288,8 @@ void Enemy_StateInit(int index)//エネミー出現情報
 	enemy[index].pos.y = frand() * SCREEN_HEIGHT;*/
 	enemy[index].rot = 0;
 	enemy[index].color = 0;
+	enemy[index].hp = 3;
+	enemy[index].t = 2;
 
 	enemy[index].muki = 1;
 	enemy[index].enable = TRUE;
@@ -281,7 +302,7 @@ void Enemy_StateInit(int index)//エネミー出現情報
 	enemy[index].frame_attack = 0;
 	enemy[index].animeAttack = FALSE;
 	enemy[index].stay = FALSE;
-	enemy[index].ready_attack =TRUE;
+	enemy[index].ready_attack = TRUE;
 	enemy[index].attack = FALSE;
 	enemy[index].move = TRUE;
 
@@ -590,4 +611,37 @@ void Enemy_Attack(int index)
 	Bullet_IscoolTrue(index);
 	Bullet_Create(enemy[index].muki,enemy[index].pos.x, enemy[index].pos.y, dir);
 	dir = D3DXVECTOR2(0.0f, 0.0f);
+}
+
+int Enemy_AddDamage(int damage, int index)
+{
+	enemy[index].hp -= damage;
+	return enemy[index].hp;
+
+	//if (boss[0].bosshitpoint < 0)
+	//	boss[0].bosshitpoint = 0;
+}
+
+
+
+int Enemy_GetHitPoint(int index)
+{
+	return enemy[index].hp;
+}
+
+void Enemy_NockBack(int index)
+{
+	enemy[index].t = 0;
+	destroy_pos[index].x = enemy[index].pos.x;
+	destroy_pos[index].y = enemy[index].pos.y;
+
+	D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
+	if (destroy_pos[index].x > pl_pos.x)
+	{
+		destroy_dir = 1;
+	}
+	else
+	{
+		destroy_dir = -1;
+	}
 }
