@@ -65,6 +65,9 @@ void Player_Initialize(void)
 	player.pos.x = SCREEN_WIDTH / 2;
 	player.pos.y = 430.0f;
 
+	player.stop[0] = false;
+	player.stop[1] = false;
+
 	player.color = 0;
 	player.muki = 0;
 	player.speed = D3DXVECTOR2(0.0f, 0.0f);
@@ -479,6 +482,31 @@ void Player_Update(void)
 	else {
 		player.speed.x = 0;
 	}
+
+	if (player.stop[0] || player.stop[1]) {
+		if (player.stop[0]&&player.stop[1]) {
+			player.speed.x = 0.0f;
+			player.stop[0] = false;
+			player.stop[1] = false;
+		}
+		else if (player.stop[0]) {
+			if (player.speed.x > 0) {
+				player.speed.x = -0.5f;
+			}
+			else {
+				player.stop[0] = false;
+			}
+		}
+		else if (player.stop[1]) {
+			if (player.speed.x < 0) {
+				player.speed.x = 0.5f;
+			}
+			else {
+				player.stop[1] = false;
+			}
+		}
+	}
+
 
 	//‰“®UŒ‚
 	if ((stick.rote[0] || stick.rote[1])&&!player.firstAT) {//‰ñ“]’†‚È‚ç

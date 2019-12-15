@@ -19,7 +19,7 @@
 
 //グローバル変数
 static PLAYER player;
-
+static ENEMY_DATA enemy;
 //プロトタイプ宣言
 bool HitCupsule(const CIRCLE* p_circle, const CUPSULE* p_cupsule);
 bool HitCupsule(const Capsule2D* c1, const Capsule2D* c2);
@@ -365,6 +365,7 @@ void Collision_Update(void)
 void Collision_Player_vs_Enemy(void)
 {
 	for (int i = 0; i < ENEMY_COUNT; i++) {
+		enemy = GetEnemy(i);
 
 		// エネミーは有効か？
 		if (!Enemy_IsEnable(i)) {
@@ -397,6 +398,22 @@ void Collision_Player_vs_Enemy(void)
 					player.attackcol = false;
 				}
 			}
+		}
+		else {
+			if (HitCupsule(Enemy_GetCollision(i), player.collision))
+			{
+
+				if (player.pos.x >= enemy.pos.x) {//敵が左
+					player.stop[1] = true;
+					enemy.stop[0] = true;
+				}
+				else {//敵が右
+					player.stop[0] = true;
+					enemy.stop[1] = true;
+				}
+			}
+
+
 		}
 	}
 }

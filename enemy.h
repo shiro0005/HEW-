@@ -3,26 +3,26 @@
 
 typedef struct
 {
-	int			enable;	//生存フラグ
+	int			enable;				//生存フラグ
 	int			hp;
 
-	D3DXVECTOR2 pos;	//位置
-	float		rot;	//回転
-	int			color;	//色
-	int			muki;	//向き（移動方向）
-	int			animePattern;	//アニメパターン
-	int			animeFrame;		//パターン切り替えウエイト
+	D3DXVECTOR2 pos;				//位置
+	float		rot;				//回転
+	int			color;				//色
+	int			muki;				//向き（移動方向）
+	int			animePattern;		//アニメパターン
+	int			animeFrame;			//パターン切り替えウエイト
 	float       t;
 	
 	Capsule2D   colcol;
-
 	int			frame;
-	int			frame_attack;  //攻撃モーションフレーム
+	int			frame_attack;		//攻撃モーションフレーム
+	bool        stop[2];			//enemyのstopフラグ
 	bool		animeAttack;
-	bool		stay;		//攻撃中の移動判定
+	bool		stay;				//攻撃中の移動判定
 	bool		ready_attack;
 	bool		attack;
-	bool		move;		//吹っ飛ばされた後えねみーの追尾処理を止める
+	bool		move;				//吹っ飛ばされた後えねみーの追尾処理を止める
 	int			frame_alpha;
 	int			state;
 	D3DXVECTOR2 dir_destroy;		//吹っ飛ばされる方向
@@ -44,3 +44,4 @@ void Enemy_Attack(int index);
 int Enemy_AddDamage(int damage, int index);
 int Enemy_GetHitPoint(int index);
 void Enemy_NockBack(int index);
+ENEMY_DATA GetEnemy(int i);

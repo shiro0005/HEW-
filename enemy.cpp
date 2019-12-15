@@ -71,10 +71,11 @@ void Enemy_Initialize(void)
 	enemy[0].pos = { 0,450 };
 	enemy[1].pos = { 1000,450 };
 	enemy[2].pos = { 1500,450 };
+
 	//敵の初期化
 	for (int i = 0; i < ENEMY_COUNT; i++) {
 		Enemy_StateInit(i);
-		enemy[i].state = ENEMY_STATE_CHASE;
+
 	}
 	
 }
@@ -286,6 +287,11 @@ void Enemy_StateInit(int index)//エネミー出現情報
 {
 	/*enemy[index].pos.x = frand() * SCREEN_WIDTH;
 	enemy[index].pos.y = frand() * SCREEN_HEIGHT;*/
+
+
+	enemy[index].state = ENEMY_STATE_CHASE;
+	enemy[index].stop[0] = false;
+	enemy[index].stop[1] = false;
 	enemy[index].rot = 0;
 	enemy[index].color = 0;
 	enemy[index].hp = 3;
@@ -412,6 +418,19 @@ void Enemy_StateChase(int index)
 	}
 
 	dir *= ENEMY_CHASE_SPEED;
+
+	if (enemy[index].stop[0] || enemy[index].stop[1]) {
+		if (enemy[index].stop[0]) {
+			if (dir.x > 0) {
+				dir.x = -0.5f;
+			}
+		}
+		else if (enemy[index].stop[1]) {
+			if (dir.x < 0) {
+				dir.x = 0.5f;
+			}
+		}
+	}
 
 	if (enemy[index].move == TRUE)//エネミーが吹っ飛ばされていなかったら
 	{
@@ -644,4 +663,8 @@ void Enemy_NockBack(int index)
 	{
 		destroy_dir = -1;
 	}
+}
+
+ENEMY_DATA GetEnemy(int i) {
+	return enemy[i];
 }
