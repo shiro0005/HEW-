@@ -560,13 +560,16 @@ void Player_Update(void)
 
 	//初動攻撃
 	if ((stick.rote[0] || stick.rote[1]) && !player.firstAT) {//回転中なら
-		if (GamePad_IsPress(0, BUTTON_C)) {
-			player.mode = 0;
-			player.firstAT = true;
-			player.backAT = false;
-			player.kickAT = false;
-			frame = 0;
-			player.com = 1;
+		if (!player.rdy_attack) {
+			if (GamePad_IsPress(0, BUTTON_C)) {
+				player.mode = 0;
+				player.rdy_attack = true;
+				player.firstAT = true;
+				player.backAT = false;
+				player.kickAT = false;
+				frame = 0;
+				player.com = 1;
+			}
 		}
 	}
 
@@ -597,18 +600,21 @@ void Player_Update(void)
 	//}
 
 	if (player.commbo >= 1) {//回転中なら
-		if (!player.backAT)
-		{
-			if (GamePad_IsPress(0, BUTTON_A)) {
-				player.firstAT = false;
-				player.kickAT = false;
-				player.backAT = true;
-				frame = 0;
-				player.mode = 0;
-				player.animePattern = 0;
-				//テスト用
-				player.pos.y = 350.0f;
-				player.com = 2;
+		if (!player.rdy_attack) {
+			if (!player.backAT)
+			{
+				if (GamePad_IsPress(0, BUTTON_A)) {
+					player.firstAT = false;
+					player.kickAT = false;
+					player.backAT = true;
+					player.rdy_attack = true;
+					frame = 0;
+					player.mode = 0;
+					player.animePattern = 0;
+					//テスト用
+					player.pos.y = 350.0f;
+					player.com = 2;
+				}
 			}
 		}
 	}
@@ -627,24 +633,28 @@ void Player_Update(void)
 		if (player.animePattern == 4) {
 			player.animePattern = 0;
 			player.attackcol = true;
+			player.rdy_attack = false;
 			player.com = 0;
 		}
 	}
 
 	//力丸の作る攻撃2
 	if (player.commbo >= 1) {//回転中なら
-		if (!player.kickAT)
-		{
-			if (GamePad_IsPress(0, BUTTON_B)) {
-				player.firstAT = false;
-				player.kickAT = true;
-				player.backAT = false;
-				frame = 0;
-				player.mode = 0;
-				player.animePattern = 0;
-				//テスト用
-				player.pos.y = 500.0f;
-				player.com = 3;
+		if (!player.rdy_attack) {
+			if (!player.kickAT)
+			{
+				if (GamePad_IsPress(0, BUTTON_B)) {
+					player.firstAT = false;
+					player.kickAT = true;
+					player.backAT = false;
+					player.rdy_attack = true;
+					frame = 0;
+					player.mode = 0;
+					player.animePattern = 0;
+					//テスト用
+					player.pos.y = 500.0f;
+					player.com = 3;
+				}
 			}
 		}
 	}
@@ -663,6 +673,7 @@ void Player_Update(void)
 		if (player.animePattern == 4) {
 			player.animePattern = 0;
 			player.attackcol = true;
+			player.rdy_attack = false;
 			player.com = 0;
 		}
 	}
@@ -691,6 +702,7 @@ void Player_Update(void)
 				player.animePattern = 0;
 				player.firstAT = false;
 				player.attackcol = true;
+				player.rdy_attack = false;
 				player.com = 0;
 			}
 		}
