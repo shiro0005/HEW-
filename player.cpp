@@ -7,9 +7,11 @@
 #include "bullet.h"
 #include "blade.h"
 #include "collision.h"
+#include "enemy.h"
 #include "math.h"
 #include <time.h>
 #include "2D.h"
+
 
 
 #define PLAYER_WIDTH	(32)
@@ -73,7 +75,7 @@ void Player_Initialize(void)
 	player.speed = D3DXVECTOR2(0.0f, 0.0f);
 	player.collision.s.v.x = 5.0f;
 	player.collision.s.v.y = 5.0f;
-	player.collision.r = PLAYER_WIDTH * 1.3f;
+	player.collision.r = PLAYER_WIDTH * 1.5f;
 
 	//右足
 	player.foot[0].r = 5.0f;
@@ -88,7 +90,7 @@ void Player_Initialize(void)
 	player.foot[1].s.p.y = player.pos.y;
 	player.foot[1].s.v.x = 10;
 	player.foot[1].s.v.y = 20;
-		
+
 	player.commbo = 0;
 	player.animePattern = 0;
 	player.hitpoint = 10;
@@ -115,7 +117,6 @@ void Player_Update(void)
 {
 
 	player.speed = D3DXVECTOR2(0.0f, 0.0f);
-
 	/*if (Keyboard_IsPress(DIK_UP) || GamePad_IsPress(0, BUTTON_UP)){
 		dir.y -= 1.0f;
 		player.muki = 3;
@@ -483,9 +484,48 @@ void Player_Update(void)
 		player.speed.x = 0;
 	}
 
-	if (player.stop[0] || player.stop[1]) {
+	//stopがtrueの時の場合
+
+	if (player.stop[0] && player.stop[1]) {
+		player.speed.x = 0.0f;
+		int CountTouch = 0;
+		for (int i = 0; i < ENEMY_COUNT; i++) {
+			ENEMY_DATA enemy = GetEnemy(i);
+			if (enemy.pos.x > player.pos.x + 32.0f || enemy.pos.x < player.pos.x - 32.0f) {
+				CountTouch++;
+			}
+		}
+		if (CountTouch == ENEMY_COUNT) {
+			player.stop[0] = false;
+			player.stop[1] = false;
+		}
+	}
+	else if (player.stop[0]) {
+		if (player.speed.x < 0) {
+			player.stop[0] = false;
+		}
+		else {
+			player.speed.x = 0.0f;
+		}
+	}
+	else if (player.stop[1]) {
+		if (player.speed.x > 0) {
+			player.stop[1] = false;
+		}
+		else {
+			player.speed.x = 0.0f;
+		}
+	}
+
+
+
+
+
+
+	/*if (player.stop[0] || player.stop[1]) {
 		if (player.stop[0]&&player.stop[1]) {
 			player.speed.x = 0.0f;
+
 			player.stop[0] = false;
 			player.stop[1] = false;
 		}
@@ -505,62 +545,146 @@ void Player_Update(void)
 				player.stop[1] = false;
 			}
 		}
-	}
+	}*/
 
 
 	//初動攻撃
-	if ((stick.rote[0] || stick.rote[1])&&!player.firstAT) {//回転中なら
+	if ((stick.rote[0] || stick.rote[1]) && !player.firstAT) {//回転中なら
 		if (GamePad_IsPress(0, BUTTON_C)) {
 			player.mode = 0;
 			player.firstAT = true;
+			player.backAT = false;
+			player.kickAT = false;
 			frame = 0;
+			player.com = 1;
 		}
 	}
 
-	if (player.firstAT) {
+
+
+	////前攻撃
+	//if (player.commbo >= 1 && player.animePattern >= 3) {//回転中なら
+	//	if (GamePad_IsPress(0, BUTTON_C) && stick.F[6]) {
+	//		player.frontAT = true;
+	//		player.firstAT = false;
+	//		frame = 0;
+	//		player.mode = 2;
+	//		player.animePattern = 0;
+	//		player.rotate = 20.0f;
+	//	}
+	//}
+
+	//if (player.frontAT) {
+	//	frame++;
+	//	player.rotate = frame * 2.0f;
+	//	if (frame % 10 == 0) {
+	//		player.animePattern++;
+	//	}
+	//	if (player.animePattern == 8) {
+	//		player.animePattern = 0;
+	//		player.frontAT = false;
+	//	}
+	//}
+
+	if (player.commbo >= 1) {//回転中なら
+		if (!player.backAT)
+		{
+			if (GamePad_IsPress(0, BUTTON_A)) {
+				player.firstAT = false;
+				player.kickAT = false;
+				player.backAT = true;
+				frame = 0;
+				player.mode = 0;
+				player.animePattern = 0;
+				//テスト用
+				player.pos.y = 350.0f;
+				player.com = 2;
+			}
+		}
+	}
+
+	//テスト用
+	if (player.pos.y < 430.0f)
+	{
+		player.pos.y += 2.0f;
+	}
+
+	if (player.com == 2) {
 		frame++;
 		if (frame % 10 == 0) {
 			player.animePattern++;
 		}
-		if (player.animePattern == 8) {
+		if (player.animePattern == 4) {
+			player.animePattern = 0;
+			player.attackcol = true;
+			player.com = 0;
+		}
+	}
+
+	//力丸の作る攻撃2
+	if (player.commbo >= 1) {//回転中なら
+		if (!player.kickAT)
+		{
+			if (GamePad_IsPress(0, BUTTON_B)) {
+				player.firstAT = false;
+				player.kickAT = true;
+				player.backAT = false;
+				frame = 0;
+				player.mode = 0;
+				player.animePattern = 0;
+				//テスト用
+				player.pos.y = 500.0f;
+				player.com = 3;
+			}
+		}
+	}
+
+	//テスト用
+	if (player.pos.y > 430.0f)
+	{
+		player.pos.y -= 2.0f;
+	}
+
+	if (player.com == 3) {
+		frame++;
+		if (frame % 10 == 0) {
+			player.animePattern++;
+		}
+		if (player.animePattern == 4) {
+			player.animePattern = 0;
+			player.attackcol = true;
+			player.com = 0;
+		}
+	}
+
+	//コンボ数リセット
+	player.combo_frame++;
+	if (player.combo_frame > 180)
+	{
+		player.commbo = 0;
+	}
+
+
+	if (player.hitpoint != olddmg) {
+		player.mode = 1;
+	}
+
+	switch (player.mode)
+	{
+	case 0:
+
+		frame++;
+		if (frame % 10 == 0) {
+			player.animePattern++;
+		}
+		if (player.animePattern == 4) {
 			player.animePattern = 0;
 			player.firstAT = false;
 			player.attackcol = true;
-
+			player.com = 0;
 		}
-	}
 
-	//前攻撃
-	if (player.commbo>=1&&player.animePattern>=3) {//回転中なら
-		if (GamePad_IsPress(0, BUTTON_C) && stick.F[6]) {
-			player.frontAT = true;
-			player.firstAT = false;
-			frame = 0;
-			player.mode = 2;
-			player.animePattern = 0;
-			player.rotate = 20.0f;
-		}
-	}
-
-	if (player.frontAT) {
-		frame++;
-		player.rotate = frame * 2.0f;
-		if (frame % 10 == 0) {
-			player.animePattern++;
-		}
-		if (player.animePattern == 8) {
-			player.animePattern = 0;
-			player.frontAT = false;
-		}
-	}
-
-	
-
-
-	if (player.hitpoint!=olddmg) {
-		player.mode = 1;
-	}
-	if (player.mode == 1) {
+	case 1:
 		frame++;
 		if (frame % 5 == 0) {
 			player.animePattern++;
@@ -569,7 +693,15 @@ void Player_Update(void)
 			player.animePattern = 0;
 			player.mode = 0;
 		}
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	default:
+		break;
 	}
+
 
 
 	// 座標の更新処理
@@ -587,12 +719,12 @@ void Player_Update(void)
 	//右足
 	player.foot[0].s.p.x = player.pos.x;
 	player.foot[0].s.p.y = player.pos.y;
-	player.foot[0].s.v.x = 60.0f*cos(D3DX_PI / 2 + player.rotate-0.7f);
-	player.foot[0].s.v.y = 60.0f*sin(D3DX_PI / 2 + player.rotate-0.7f);
+	player.foot[0].s.v.x = 60.0f*cos(D3DX_PI / 2 + player.rotate - 0.7f);
+	player.foot[0].s.v.y = 60.0f*sin(D3DX_PI / 2 + player.rotate - 0.7f);
 
 	//左足
-	player.foot[1].s.p.x = player.pos.x+10.0f;
-	player.foot[1].s.p.y = player.pos.y+15.0f;
+	player.foot[1].s.p.x = player.pos.x + 10.0f;
+	player.foot[1].s.p.y = player.pos.y + 15.0f;
 	player.foot[1].s.v.x = 70.0f*cos(D3DX_PI / 2 + player.rotate + 0.87f);
 	player.foot[1].s.v.y = 70.0f*sin(D3DX_PI / 2 + player.rotate + 0.87f);
 
@@ -624,6 +756,8 @@ void Player_Draw(void)
 		4.0f,
 		6.0f,
 		player.rotate);
+
+
 }
 
 //const Capsule2D* Player_GetCollision()
