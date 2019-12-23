@@ -10,6 +10,7 @@
 #include "enemy.h"
 #include "math.h"
 #include <time.h>
+#include "collisioncheck.h"
 #include "2D.h"
 
 
@@ -69,12 +70,19 @@ void Player_Initialize(void)
 
 	player.stop[0] = false;
 	player.stop[1] = false;
-
+	
 	player.color = 0;
 	player.muki = 0;
 	player.speed = D3DXVECTOR2(0.0f, 0.0f);
-	player.collision.s.v.x = 5.0f;
-	player.collision.s.v.y = 5.0f;
+
+	player.rotate = 0;
+	player.collision.s.p.x = (player.pos.x) + 50.0f*cos(D3DX_PI / 2 - player.rotate);
+	player.collision.s.p.y = (player.pos.y) - 50.0f*sin(D3DX_PI / 2 - player.rotate);
+	player.collision.s.v.x = 100.0f * cos(D3DX_PI / 2 + player.rotate);
+	if (player.rotate == 0) {
+		player.collision.s.v.x = 0;
+	}
+	player.collision.s.v.y = 100.0f * sin(D3DX_PI / 2 + player.rotate);
 	player.collision.r = PLAYER_WIDTH * 1.5f;
 
 	//‰E‘«
@@ -91,6 +99,8 @@ void Player_Initialize(void)
 	player.foot[1].s.v.x = 10;
 	player.foot[1].s.v.y = 20;
 
+
+	player.mode = 0;
 	player.commbo = 0;
 	player.animePattern = 0;
 	player.hitpoint = 10;
@@ -672,18 +682,19 @@ void Player_Update(void)
 	switch (player.mode)
 	{
 	case 0:
-
-		frame++;
-		if (frame % 10 == 0) {
-			player.animePattern++;
+		if (player.firstAT) {
+			frame++;
+			if (frame % 10 == 0) {
+				player.animePattern++;
+			}
+			if (player.animePattern == 4) {
+				player.animePattern = 0;
+				player.firstAT = false;
+				player.attackcol = true;
+				player.com = 0;
+			}
 		}
-		if (player.animePattern == 4) {
-			player.animePattern = 0;
-			player.firstAT = false;
-			player.attackcol = true;
-			player.com = 0;
-		}
-
+		break;
 	case 1:
 		frame++;
 		if (frame % 5 == 0) {
@@ -714,6 +725,9 @@ void Player_Update(void)
 	player.collision.s.p.x = (player.pos.x) + 50.0f*cos(D3DX_PI / 2 - player.rotate);
 	player.collision.s.p.y = (player.pos.y) - 50.0f*sin(D3DX_PI / 2 - player.rotate);
 	player.collision.s.v.x = 100.0f*cos(D3DX_PI / 2 + player.rotate);
+	if (player.rotate == 0) {
+		player.collision.s.v.x = 0;
+	}
 	player.collision.s.v.y = 100.0f*sin(D3DX_PI / 2 + player.rotate);
 
 	//‰E‘«
@@ -758,6 +772,8 @@ void Player_Draw(void)
 		player.rotate);
 
 
+	colcheck(player.collision);
+	
 }
 
 //const Capsule2D* Player_GetCollision()

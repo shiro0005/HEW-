@@ -65,6 +65,35 @@ void Sprite_Draw(TextureIndex texture_index, float dx, float dy, int tx, int ty,
 	pDevice->SetTexture(0, Texture_GetTexture(texture_index));
     pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexes, sizeof(Vertex2D));
 }
+
+//CIRCLE—p
+void Sprite_Draw(TextureIndex texture_index, float dx, float dy, int tx, int ty, float r)
+{
+	LPDIRECT3DDEVICE9 pDevice = GetD3DDevice();
+	if (!pDevice) return;
+
+	float w = (float)Texture_GetWidth(texture_index);
+	float h = (float)Texture_GetHeight(texture_index);
+
+	float u[2], v[2];
+	u[0] = (float)tx / w;
+	v[0] = (float)ty / h;
+	u[1] = (float)(tx + r) / w;
+	v[1] = (float)(ty + r) / h;
+
+	Vertex2D vertexes[] = {
+		{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f), g_Color, D3DXVECTOR2(u[0], v[0]) },
+		{ D3DXVECTOR4(dx + r - 0.5f, dy - 0.5f, 0.0f, 1.0f), g_Color, D3DXVECTOR2(u[1], v[0]) },
+		{ D3DXVECTOR4(dx - 0.5f, dy + r - 0.5f, 0.0f, 1.0f), g_Color, D3DXVECTOR2(u[0], v[1]) },
+		{ D3DXVECTOR4(dx + r - 0.5f, dy + r - 0.5f, 0.0f, 1.0f), g_Color, D3DXVECTOR2(u[1], v[1]) },
+	};
+
+	pDevice->SetFVF(FVF_VERTEX2D);
+	pDevice->SetTexture(0, Texture_GetTexture(texture_index));
+	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexes, sizeof(Vertex2D));
+}
+
+
 /*
 void Sprite_Draw(TextureIndex texture_index, float dx, float dy, int tx, int ty,int tw, int th, float cx, float cy, float sx, float sy, float rotation)
 {

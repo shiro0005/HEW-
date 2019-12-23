@@ -76,6 +76,12 @@ void Game_Update(void)
 {
 	//player構造体の情報を取得
 	player = GetPlayer();
+	Player_Update();
+	Field1_Update();
+	Enemy_Update();
+	//当たり判定は必ずすべてのアップデート処理が終わった後に行う
+	Collision_Update();
+
 
 	switch(g_Phase)
 	{
@@ -88,16 +94,16 @@ void Game_Update(void)
 	case PHASE_INDEX_PLAYER_IN:
 	case PHASE_INDEX_PLAYER_MUTEKI:
 	case PHASE_INDEX_PLAYER_NORMAL:
-		Player_Update();
-		Field1_Update();
-		Enemy_Update();
-		/*Bullet_Update();
-		EnemyBullet_Update();
-		EnemyLaser_Update();*/
-		Explosion_Update();
+		//Player_Update();
+		//Field1_Update();
+		//Enemy_Update();
+		///*Bullet_Update();
+		//EnemyBullet_Update();
+		//EnemyLaser_Update();*/
+		//Explosion_Update();
 
-		//当たり判定は必ずすべてのアップデート処理が終わった後に行う
-		Collision_Update();
+		////当たり判定は必ずすべてのアップデート処理が終わった後に行う
+		//Collision_Update();
 
 		//ボス出現
 		if (Game_Bossappear())
@@ -112,16 +118,16 @@ void Game_Update(void)
 		}
 		break;
 	case PHASE_INDEX_BOSS:
- 		Player_Update();
-		//Bullet_Update();
-		Field1_Update();
-		Boss_Update();
-		/*BossBullet_Draw();
-		BossLaser_Update();*/
-		Explosion_Update();
+ 	//	Player_Update();
+		////Bullet_Update();
+		//Field1_Update();
+		//Boss_Update();
+		///*BossBullet_Draw();
+		//BossLaser_Update();*/
+		//Explosion_Update();
 
-		//当たり判定は必ずすべてのアップデート処理が終わった後に行う
-		Collision_Update();
+		////当たり判定は必ずすべてのアップデート処理が終わった後に行う
+		//Collision_Update();
 
 		//ゲームの終了チェック
 		if (Game_EndCheck())

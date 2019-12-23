@@ -22,6 +22,7 @@ static const TextureFile g_TextureFiles[] = {
 	{ "asset/texture/number.tga", 320, 32 },
 	{ "asset/texture/start.png", 1024, 576 },
 	{ "asset/texture/enemy.tga", 256, 256 },
+	{ "asset/texture/CIRCLE.png", 1024, 576 },
 
 	{ "asset/texture/start.png", 1024, 576 },
 	{ "asset/texture/start.png", 1024, 576 },
