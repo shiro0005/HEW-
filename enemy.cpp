@@ -7,6 +7,7 @@
 #include "explosion.h"
 #include "enemy_hand.h"
 #include "game.h"
+#include "collisioncheck.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -217,7 +218,11 @@ void Enemy_Draw(void)
 			4.0f,
 			4.0f,
 			enemy[i].rot);
+		
+		colcheck(enemy[i].colcol);
 	}
+
+	
 }
 
 void Enemy_Destroy(int index)

@@ -785,7 +785,8 @@ void Player_Draw(void)
 
 
 	colcheck(player.collision);
-	
+	colcheck(player.foot[0]);
+	colcheck(player.foot[1]);
 }
 
 //const Capsule2D* Player_GetCollision()
