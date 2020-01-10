@@ -7,7 +7,7 @@
 //#include "bullet.h"
 #include "boss.h"
 //#include "bossbullet.h"
-//#include "bosslaser.h"
+#include "bosslaser.h"
 //#include "enemybullet.h"
 //#include "enemylaser.h"
 #include "explosion.h"
@@ -52,9 +52,9 @@ void Game_Initialize(void)
 	EnemyBullet_Initialize();
 	EnemyLaser_Initialize();
 	BossBullet_Initialize();
-	BossLaser_Initialize();*/
+	*/
 	Explosion_Initialize();
-
+    BossLaser_Initialize();
 
 	g_Phase = PHASE_INDEX_FADE;
 	g_GameFrameCount = 0;
@@ -118,16 +118,16 @@ void Game_Update(void)
 		}
 		break;
 	case PHASE_INDEX_BOSS:
- 	//	Player_Update();
+ 	Player_Update();
 		////Bullet_Update();
-		//Field1_Update();
-		//Boss_Update();
+		Field1_Update();
+		Boss_Update();
 		///*BossBullet_Draw();
-		//BossLaser_Update();*/
-		//Explosion_Update();
+		BossLaser_Update();
+		Explosion_Update();
 
 		////当たり判定は必ずすべてのアップデート処理が終わった後に行う
-		//Collision_Update();
+		Collision_Update();
 
 		//ゲームの終了チェック
 		if (Game_EndCheck())
@@ -159,8 +159,9 @@ void Game_Draw(void)
 	EnemyBullet_Draw();
 	EnemyLaser_Draw();
 	BossBullet_Draw();
-	BossLaser_Draw();*/
+	*/
 	Explosion_Draw();
+	BossLaser_Draw();
 	//ライフスコア表示
 	Score_Draw(0, 0, player.hitpoint, 2, true);
 	Score_Draw(800, 0,g_Score, 7, true);
@@ -169,7 +170,7 @@ void Game_Draw(void)
 bool Game_Bossappear(void)
 {
 	//10匹倒したらボス出現
-	if (g_KillCount>=10)
+	if (g_KillCount>=3)
 	{
 		return true;
 	}
@@ -187,8 +188,8 @@ bool Game_EndCheck(void)
 	if (g_Bosskill >= 1)
 		return true;
 
-	if(g_KillCount>=3)
-		return true;
+	/*if(g_KillCount>=3)
+		return true;*/
 
 	if (player.hitpoint <= 0)
 		return true;

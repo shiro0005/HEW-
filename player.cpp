@@ -67,6 +67,7 @@ void Player_Initialize(void)
 	//ÉvÉåÉCÉÑÅ[ÇÃèâä˙âª
 	player.pos.x = SCREEN_WIDTH / 2;
 	player.pos.y = 430.0f;
+	player.mode = 2;
 
 	player.stop[0] = false;
 	player.stop[1] = false;
@@ -100,15 +101,17 @@ void Player_Initialize(void)
 	player.foot[1].s.v.y = 20;
 
 
-	player.mode = 0;
+
 	player.commbo = 0;
-	player.animePattern = 0;
+	//player.animePattern = 0;
 	player.hitpoint = 10;
 	olddmg = 10;
 	player.attackcol = true;
-	player.firstAT = false;
-	player.frontAT = false;
+	player.allAT = 0;
+	//player.firstAT = false;
+	//player.frontAT = false;
 	cnt = 0;
+	player.com = 0;
 	frame = 0;
 	for (int i = 0; i < 10; i++) {
 		stick.F[i] = false;
@@ -481,7 +484,7 @@ void Player_Update(void)
 
 
 	//à⁄ìÆílê›íË
-	if (player.firstAT || player.frontAT) {
+	if (player.allAT == 1) {
 		player.speed.x = 0;
 	}
 	else if (stick.rote[0]) {
@@ -527,7 +530,7 @@ void Player_Update(void)
 		}
 	}
 
-
+	//allAT=0...îÒçUåÇéû, 1...èâìÆçUåÇ, 2...è„çUåÇ, 3...â∫çUåÇ
 
 
 
@@ -559,22 +562,44 @@ void Player_Update(void)
 
 
 	//èâìÆçUåÇ
-	if ((stick.rote[0] || stick.rote[1]) && !player.firstAT) {//âÒì]íÜÇ»ÇÁ
-		if (!player.rdy_attack) {
-			if (GamePad_IsPress(0, BUTTON_C)) {
+	//if ((stick.rote[0] || stick.rote[1]) && !player.firstAT) {//âÒì]íÜÇ»ÇÁ
+	//	if (!player.rdy_attack) {
+	//		if (GamePad_IsPress(0, BUTTON_C)) {
+	//			player.mode = 0;
+	//			player.rdy_attack = true;
+	//			player.firstAT = true;
+	//			player.backAT = false;
+	//			player.kickAT = false;
+	//			frame = 0;
+	//			player.com = 1;
+	//		}
+	//	}
+	//}
+
+
+	if ((stick.rote[0] || stick.rote[1])) {//âÒì]íÜÇ»ÇÁ
+		if (player.com == 0) {
+			if (GamePad_IsTrigger(0, BUTTON_C)) {
 				player.mode = 0;
-				player.rdy_attack = true;
-				player.firstAT = true;
-				player.backAT = false;
-				player.kickAT = false;
+				player.allAT = 1;
 				frame = 0;
 				player.com = 1;
 			}
 		}
 	}
 
-
-
+	if (player.com == 1) {
+		frame++;
+		if (frame % 10 == 0) {
+			player.animePattern++;
+		}
+		if (player.animePattern == 4) {
+			player.animePattern = 0;
+			player.allAT = 0;
+			player.attackcol = true;
+			player.com = 0;
+		}
+	}
 	////ëOçUåÇ
 	//if (player.commbo >= 1 && player.animePattern >= 3) {//âÒì]íÜÇ»ÇÁ
 	//	if (GamePad_IsPress(0, BUTTON_C) && stick.F[6]) {
@@ -600,17 +625,13 @@ void Player_Update(void)
 	//}
 
 	if (player.commbo >= 1) {//âÒì]íÜÇ»ÇÁ
-		if (!player.rdy_attack) {
-			if (!player.backAT)
-			{
+		if (player.com == 0) {
+			if (!(player.allAT == 2)) {
 				if (GamePad_IsPress(0, BUTTON_A)) {
-					player.firstAT = false;
-					player.kickAT = false;
-					player.backAT = true;
-					player.rdy_attack = true;
 					frame = 0;
 					player.mode = 0;
 					player.animePattern = 0;
+					player.allAT = 2;
 					//ÉeÉXÉgóp
 					player.pos.y = 350.0f;
 					player.com = 2;
@@ -632,30 +653,26 @@ void Player_Update(void)
 		}
 		if (player.animePattern == 4) {
 			player.animePattern = 0;
-			player.attackcol = true;
-			player.rdy_attack = false;
+			player.allAT = 0;
 			player.com = 0;
 		}
 	}
 
 	//óÕä€ÇÃçÏÇÈçUåÇ2
 	if (player.commbo >= 1) {//âÒì]íÜÇ»ÇÁ
-		if (!player.rdy_attack) {
-			if (!player.kickAT)
-			{
+		if (player.com == 0) {
+			if (!(player.allAT == 3)) {
 				if (GamePad_IsPress(0, BUTTON_B)) {
-					player.firstAT = false;
-					player.kickAT = true;
-					player.backAT = false;
-					player.rdy_attack = true;
 					frame = 0;
 					player.mode = 0;
 					player.animePattern = 0;
+					player.allAT = 3;
 					//ÉeÉXÉgóp
 					player.pos.y = 500.0f;
 					player.com = 3;
 				}
 			}
+
 		}
 	}
 
@@ -673,7 +690,7 @@ void Player_Update(void)
 		if (player.animePattern == 4) {
 			player.animePattern = 0;
 			player.attackcol = true;
-			player.rdy_attack = false;
+			player.allAT = 0;
 			player.com = 0;
 		}
 	}
@@ -692,21 +709,6 @@ void Player_Update(void)
 
 	switch (player.mode)
 	{
-	case 0:
-		if (player.firstAT) {
-			frame++;
-			if (frame % 10 == 0) {
-				player.animePattern++;
-			}
-			if (player.animePattern == 4) {
-				player.animePattern = 0;
-				player.firstAT = false;
-				player.attackcol = true;
-				player.rdy_attack = false;
-				player.com = 0;
-			}
-		}
-		break;
 	case 1:
 		frame++;
 		if (frame % 5 == 0) {

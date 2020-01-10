@@ -11,13 +11,14 @@ typedef struct
 	D3DXVECTOR2 speed;          //プレイヤー移動
 	int			combo_frame;	//コンボ用フレーム
 	int			animePattern;	//アニメパターン
-	bool        firstAT;        //初動攻撃
-	bool        frontAT;        //前攻撃
-	bool		backAT;			//後ろ攻撃
-	bool		kickAT;			//蹴り攻撃
+
+	//bool        firstAT;        //初動攻撃
+	//bool        frontAT;        //前攻撃
+	//bool		backAT;			//後ろ攻撃
+	//bool		kickAT;			//蹴り攻撃
+	int			allAT;			//○○ATの代わり
 	bool		attackcol;		//当たり判定を連続で読み込まないためのbool
 	bool        stop[2];        //敵とぶつかることで止めるフラグ　[0]が右に敵　[1]が左に敵
-	bool		rdy_attack;		//
 	int			mode;           //プレイヤー状態
 	int         commbo;			//プレイヤーコンボ数
 	Capsule2D   collision;		//カプセルの当たり判定

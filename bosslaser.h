@@ -7,12 +7,12 @@
 #define BOSSLASER_MAX (10)
 
 
-//void BossLaser_Initialize(void);
-//void BossLaser_Update(void);
-//void BossLaser_Draw(void);
-//
-//void BossLaser_Create(float x, float y, D3DXVECTOR2 dir);
-//
-//void BossLaser_Destroy(int index);
-//bool BossLaser_IsEnable(int index);
-//const CUPSULE* BossLaser_GetCollision(int index);
+void BossLaser_Initialize(void);
+void BossLaser_Update(void);
+void BossLaser_Draw(void);
+
+void BossLaser_Create(float x, float y, D3DXVECTOR2 dir);
+
+void BossLaser_Destroy(int index);
+bool BossLaser_IsEnable(int index);
+const CUPSULE* BossLaser_GetCollision(int index);
