@@ -9,6 +9,4 @@ void Sprite_Draw(TextureIndex texture_index, float dx, float dy);
 
 void Sprite_Draw(TextureIndex texture_index, float dx, float dy, int tx, int ty, int tw, int th);
 
-void Sprite_Draw(TextureIndex texture_index, float dx, float dy, int tx, int ty, float r);
-
 void Sprite_Draw(TextureIndex texture_index, float dx, float dy, int tx, int ty, int tw, int th, float cx, float cy, float sx, float sy, float rotation);

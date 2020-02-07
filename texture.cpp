@@ -15,14 +15,13 @@ typedef struct TextureFile_tag
 
 static const TextureFile g_TextureFiles[] = {
     { "asset/texture/player.tga", 256, 256 },
-    { "asset/texture/runningman000.png", 256, 512 },
+    { "asset/texture/zonbimovi.png", 600, 1400 },
 	{ "asset/texture/bullet00.png", 32, 32 },
-	{ "asset/texture/bullet01.png", 32, 32 },
+	{ "asset/texture/laser.png", 256, 320 },
 	{ "asset/texture/exp.png", 128, 128 },
-	{ "asset/texture/number.tga", 320, 32 },
+	{ "asset/texture/number3.png", 320, 32 },
 	{ "asset/texture/start.png", 1024, 576 },
 	{ "asset/texture/enemy.tga", 256, 256 },
-	{ "asset/texture/CIRCLE.png", 720, 720 },
 
 	{ "asset/texture/start.png", 1024, 576 },
 	{ "asset/texture/start.png", 1024, 576 },
@@ -30,11 +29,26 @@ static const TextureFile g_TextureFiles[] = {
 	{ "asset/texture/start.png", 1024, 576 },
 	{ "asset/texture/end.png", 1024, 576 },
 
-	{ "asset/texture/bgmain.jpg", 1024, 576 },
-	{ "asset/texture/bgloop.jpg", 1024, 576 },
+	{ "asset/texture/bgloopbigguiro.png", 1024, 576},
+	{ "asset/texture/bgloopiro.png", 1024, 576 },
 
 	{ "asset/texture/end.png", 1024, 576 },
 	{ "asset/texture/kokosozai.png", 512, 512 },
+	{ "asset/texture/CIRCLE.png", 720, 720 },
+	{ "asset/texture/impact1.png", 256, 256 },
+	{ "asset/texture/impact.png", 256, 256 },
+	{ "asset/texture/jougai.png", 256, 2560 },
+	{ "asset/texture/attack_speed.png", 256, 448 },
+	{ "asset/texture/taisou.png", 1100, 1700 },
+    {"asset/texture/number3.png",320,32},
+    {"asset/texture/titlemozi.png",710,205},
+    {"asset/texture/タイトル　体.png",720,540},
+    {"asset/texture/タイトル　葬.png",720,540},
+	{"asset/texture/ライフ選手赤透過.png",298,298},
+	{"asset/texture/ライフ選手緑透過.png",298,298},
+	{"asset/texture/playerdamage.png",1024,512},
+	{"asset/texture/hit.png",608,253},
+	{"asset/texture/controller.png",5400,350},
 };
 
 static const int TEXTURE_FILE_COUNT = sizeof(g_TextureFiles) / sizeof(g_TextureFiles[0]);

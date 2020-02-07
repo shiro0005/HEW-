@@ -71,8 +71,8 @@
 //	},
 //};
 
-D3DXVECTOR2 animeTable[3][8] =
-{
+D3DXVECTOR2 animeTable[2][8] =
+{   
 	{
 	  {
 		D3DXVECTOR2(0.0,0.0)
@@ -121,40 +121,14 @@ D3DXVECTOR2 animeTable[3][8] =
 		  {
 			D3DXVECTOR2(0,0.391)
 		  },
-		  {
+          {
 			D3DXVECTOR2(0,0.25)
 		  },
-	},
-	{
-	  {
-		D3DXVECTOR2(0.0,0.0)
-	  },
-	  {
-		D3DXVECTOR2(0.129,0.121)
-	  },
-	  {
-		D3DXVECTOR2(0.254,0.121)
-	  },
-	  {
-		D3DXVECTOR2(0.379,0.121)
-	  },
-	  {
-		D3DXVECTOR2(0.504,0.121)
-	  },
-	  {
-		D3DXVECTOR2(0.633,0.121)
-	  },
-	  {
-		D3DXVECTOR2(0.758,0.121)
-	  },
-	  {
-		D3DXVECTOR2(0.879,0.121)
-	  },
 	},
 };
 
 
-D3DXVECTOR2 GetAnimTbl(int mode, int anim)
+D3DXVECTOR2 GetAnimTbl(int mode,int anim)
 {
 	return animeTable[mode][anim];
 }
