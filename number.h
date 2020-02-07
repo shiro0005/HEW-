@@ -6,4 +6,4 @@
 
 
 // 0 <= n <= 9
-void Number_Draw(float x, float y, int n);
+void Number_Draw(float x, float y, int n, float sx, float sy);

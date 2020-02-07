@@ -1,74 +1,32 @@
 
 #include "enemy_table.h"
 
-D3DXVECTOR2 animeTable2[3][4][3] =
+D3DXVECTOR2 animeTable2[2][2][3] =
 {
 	{
-		{//水色　下向き
-			D3DXVECTOR2(0.0f, 0.0f),
-			D3DXVECTOR2(0.125f, 0.0f),
-			D3DXVECTOR2(0.25f, 0.0f),
-		},
 		{//水色　左向き
-			D3DXVECTOR2(0.0f, 0.125f),
-			D3DXVECTOR2(0.125f, 0.125f),
-			D3DXVECTOR2(0.25f, 0.125f),
+			D3DXVECTOR2(0.0f, 0.0f),
+			D3DXVECTOR2(0.78f, 0.0f),
+			D3DXVECTOR2(1.56f, 0.0f),
 		},
 		{//水色　右向き
-			D3DXVECTOR2(0.0f, 0.25f),
-			D3DXVECTOR2(0.125f, 0.25f),
-			D3DXVECTOR2(0.25f, 0.25f),
-		},
-		{//水色　上向き
-			D3DXVECTOR2(0.0f, 0.375f),
-			D3DXVECTOR2(0.125f, 0.375f),
-			D3DXVECTOR2(0.25f, 0.375f),
-		},
+			D3DXVECTOR2(0.0f, 1.3f),
+			D3DXVECTOR2(0.78f, 1.3f),
+			D3DXVECTOR2(1.56f, 1.3f),
+		}
 	},
 	{
 		{//赤色　下向き
-			D3DXVECTOR2(0.375f, 0.0f),
-			D3DXVECTOR2(0.5f,   0.0f),
-			D3DXVECTOR2(0.625f, 0.0f),
+			D3DXVECTOR2(0.0f, 2.6f),
+			D3DXVECTOR2(0.78f, 2.6f),
+			D3DXVECTOR2(1.56f, 2.6f),
 		},
 		{//赤色　左向き
-			D3DXVECTOR2(0.375f, 0.125f),
-			D3DXVECTOR2(0.5f,   0.125f),
-			D3DXVECTOR2(0.625f, 0.125f),
-		},
-		{//赤色　右向き
-			D3DXVECTOR2(0.375f, 0.25f),
-			D3DXVECTOR2(0.5f,   0.25f),
-			D3DXVECTOR2(0.625f, 0.25f),
-		},
-		{//赤色　上向き
-			D3DXVECTOR2(0.375f, 0.375f),
-			D3DXVECTOR2(0.5f,   0.375f),
-			D3DXVECTOR2(0.625f, 0.375f),
-		},
-	},
-	{
-		{//青色　下向き
-			D3DXVECTOR2(0.0f,   0.5f),
-			D3DXVECTOR2(0.125f, 0.5f),
-			D3DXVECTOR2(0.25f,  0.5f),
-		},
-		{//青色　左向き
-			D3DXVECTOR2(0.0f,   0.625f),
-			D3DXVECTOR2(0.125f, 0.625f),
-			D3DXVECTOR2(0.25f,  0.625f),
-		},
-		{//青色　右向き
-			D3DXVECTOR2(0.0f,   0.75f),
-			D3DXVECTOR2(0.125f, 0.75f),
-			D3DXVECTOR2(0.25f,  0.75f),
-		},
-		{//青色　上向き
-			D3DXVECTOR2(0.0f,   0.875f),
-			D3DXVECTOR2(0.125f, 0.875f),
-			D3DXVECTOR2(0.25f,  0.875f),
-		},
-	},
+			D3DXVECTOR2(0.0f, 3.9f),
+			D3DXVECTOR2(0.78f, 3.9f),
+			D3DXVECTOR2(1.56f, 3.9f),
+		}
+	}
 };
 
 D3DXVECTOR2 GetAnimTbl2(int set, int muki, int anim)

@@ -5,45 +5,51 @@
 #include "player.h"
 #include "bossbullet.h"
 #include "bosslaser.h"
+#include "bossflame.h"
+#include "bossthunder.h"
 #include "explosion.h"
 #include "enemy_hand.h"
 #include "game.h"
+#include "collisioncheck.h"
+
 
 #define _USE_MATH_DEFINES
 #include <math.h>
 
 #define BOSS_WIDTH				(128)
-#define BOSS_HEIGHT			    (128)
+#define BOSS_HEIGHT				(128)
 #define ANIME_PATTERN_MAX		(3)
 #define ANIME_PATTERN_SKIPFRAME (8)
 
 #define BOSS_SEARCH_RADIUS		(200.0f)
 #define BOSS_SEARCH_ANGLE		(0.85f)
-#define BOSS_CHASE_SPEED		(3.0f)
+#define BOSS_CHASE_SPEED		(1.0f)
 #define BOSS_RETURN_SPEED		(1.0f)
 
 #define BOSS_DESTROY_SPEED		(20.0f)
 
-//グローバル変数
+
+
 BOSS_DATA boss[BOSS_COUNT];
+
+static PLAYER player;//player構造体の情報
 
 D3DXVECTOR2 boss_dir;
 float destroy_boss_pos_x[BOSS_COUNT];
 float destroy_boss_pos_y[BOSS_COUNT];
 int destroy_boss_dir;
-static PLAYER player;//player構造体の情報
 
 typedef enum
 {
-	//BOSS_STATE_INIT,		//初期化
-	//BOSS_STATE_SEARCH,		//周囲をサーチ
-	//BOSS_STATE_FIND,		//敵を発見
-	//BOSS_STATE_CHASE,		//追跡
+	//ENEMY_STATE_INIT,		//初期化
+	//ENEMY_STATE_SEARCH,		//周囲をサーチ
+	//ENEMY_STATE_FIND,		//敵を発見
+	//ENEMY_STATE_CHASE,		//追跡
 	//BOSS_STATE_SHOT,		//ショット発射
 	BOSS_STATE_LASER,		//レーザー発射
 	BOSS_STATE_COOLDOWN,	//ショット終了
 	BOSS_STATE_RETURN,		//定位置に戻る
-	//BOSS_STATE_DEAD,		//死亡状態
+	//ENEMY_STATE_DEAD,		//死亡状態
 	BOSS_STATE_INIT,		//初期化
 	BOSS_STATE_CHASE,		//追跡
 	BOSS_STATE_DEAD,		//死亡状態
@@ -52,17 +58,24 @@ typedef enum
 
 }BOSS_STATE;
 
-//void Boss_StateSearch(int index);
-void Boss_StateLaser(int index);
+int bossatk_countdown;
+
+//int Enemy_CalcMuki(D3DXVECTOR2 dir);
+//void Enemy_StateSearch(int index);
+//void Enemy_StateFind(int index);
+//void Enemy_StateShot(int index);
+//void Boss_StateLaser(int index);
+//void Enemy_StateCooldown(int index);
+//void Boss_StateReturn(int index);
 void Boss_StateInit(int index);
 void Boss_StateChase(int index);
+
 
 
 void Boss_Initialize(void)
 {
 	destroy_boss_dir = 0.0f;
-	boss_dir.x = 0.0f;
-	//敵の初期化
+	boss_dir.x = 1.0f;
 	for (int i = 0; i < BOSS_COUNT; i++)
 	{
 		boss[i].enable = FALSE;
@@ -76,12 +89,11 @@ void Boss_Finalize(void)
 
 void Boss_Update(void)
 {
-	//player構造体の情報を取得
 	player = GetPlayer();
 
 	for (int i = 0; i < BOSS_COUNT; i++) {
 
-		if (boss[i].bosshitpoint <= 0)
+		if (boss[i].hp <= 0)
 		{
 			Boss_Destroy(i);
 		}
@@ -120,25 +132,12 @@ void Boss_Update(void)
 		}
 	}
 
-	//for (int i = 0; i < BOSS_COUNT; i++)
-	//{
-	//	if (boss[i].bosshitpoint >= 1)
-	//	{
-	//		if (boss[i].t <= 1)
-	//		{//ノックバック
-	//			boss[i].pos.x = destroy_boss_pos_x[i] + (boss[i].t*destroy_boss_dir*100.0f);
-	//			boss[i].pos.y = destroy_boss_pos_y[i] - (3 * boss[i].t*((1 - boss[i].t)*(1 - boss[i].t)))*100.0f;
-	//			boss[i].t = boss[i].t + 0.02;
-	//		}
-	//	}
-	//}
-
 	//当たり判定用座標の更新
-	boss[0].colcol.r = BOSS_WIDTH * 0.8f;
+	boss[0].colcol.r = BOSS_WIDTH * 0.6f;
 	boss[0].colcol.s.p.x = boss[0].pos.x;
-	boss[0].colcol.s.p.y = boss[0].pos.y - 25.0f;
+	boss[0].colcol.s.p.y = boss[0].pos.y - 50.0f;
 	boss[0].colcol.s.v.x = 0.0f;
-	boss[0].colcol.s.v.y = 50.0f;
+	boss[0].colcol.s.v.y = 100.0f;
 
 	//スキップするフレーム値を超えたら
 	if (++boss[0].animeFrame > ANIME_PATTERN_SKIPFRAME)
@@ -148,8 +147,6 @@ void Boss_Update(void)
 			boss[0].animePattern = 0;
 		//フレームは元に戻す
 		boss[0].animeFrame = 0;
-
-		//boss[0].pos.x -= player.speed.x * 10;//エネミーをプレイヤーの移動と合わせる
 	}
 
 	switch (boss[0].state)
@@ -166,20 +163,17 @@ void Boss_Update(void)
 	case BOSS_STATE_CHASE:
 		Boss_StateChase(0);
 		break;
-	case BOSS_STATE_LASER:
+	/*case BOSS_STATE_LASER:
 		Boss_StateLaser(0);
 		break;
-		/*case ENEMY_STATE_SHOT:
+		case ENEMY_STATE_SHOT:
 			Enemy_StateShot(i);
 			break;
-		case ENEMY_STATE_LASER:
-			Enemy_StateLaser(i);
+		 case BOSS_STATE_RETURN:
+			Boss_StateReturn(0);
 			break;
 		case ENEMY_STATE_COOLDOWN:
 			Enemy_StateCooldown(i);
-			break;
-		case ENEMY_STATE_RETURN:
-			Enemy_StateReturn(i);
 			break;*/
 	default:
 		break;
@@ -195,25 +189,27 @@ void Boss_Draw(void)
 			continue;
 		}
 
-		Sprite_Draw(TEXTURE_INDEX_ENEMY,
+		Sprite_Draw(TEXTURE_INDEX_ZOMBIE,
 			boss[i].pos.x,
 			boss[i].pos.y,
 			GetAnimTbl2(boss[i].color, boss[i].muki, boss[i].animePattern).x * 256,
 			GetAnimTbl2(boss[i].color, boss[i].muki, boss[i].animePattern).y * 256,
-			32,
-			32,
-			16,
-			16,
-			8.0f,
-			8.0f,
+			200,
+			300,
+			100,
+			150,
+			1.2f,
+			1.2f,
 			boss[i].rot);
+		/*colcheck(boss[i].colcol);*/
+
+
 	}
 }
 
 void Boss_Destroy(int index)
 {
 	boss[index].move = FALSE;
-	//D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
 
 	if (destroy_boss_dir == 1)
 	{
@@ -223,15 +219,6 @@ void Boss_Destroy(int index)
 	{
 		boss[index].dir_destroy.x = -2.0f;
 	}
-
-	/*if (pl_pos.x - destroy_boss_pos_x[index] < 0)
-	{
-		boss[index].dir_destroy.x = 2.0f;
-	}
-	else
-	{
-		boss[index].dir_destroy.x = -2.0f;
-	}*/
 	boss[index].dir_destroy.y = -1.5f;
 	D3DXVec2Normalize(&boss[index].dir_destroy, &boss[index].dir_destroy);
 
@@ -248,8 +235,8 @@ const Capsule2D* Boss_GetCollision(int index)
 	return &boss[index].colcol;
 }
 
-//向きを作る
-//int Boss_CalcMuki(D3DXVECTOR2 dir)
+////向きを作る
+//int Enemy_CalcMuki(D3DXVECTOR2 dir)
 //{
 //	int muki = 0;
 //
@@ -284,14 +271,14 @@ const Capsule2D* Boss_GetCollision(int index)
 //	return muki;
 //}
 
-void Boss_StateInit(int index)//ボス出現情報
+void Boss_StateInit(int index)//エネミー出現情報
 {
 	/*enemy[index].pos.x = frand() * SCREEN_WIDTH;
 	enemy[index].pos.y = frand() * SCREEN_HEIGHT;*/
 	boss[index].rot = 0;
 	boss[index].color = 0;
 	boss[index].pos = { 1000,450 };
-	boss[index].bosshitpoint = 10;
+	boss[index].hp = 10;
 	boss[index].t = 0;
 
 	boss[index].muki = 1;
@@ -306,10 +293,12 @@ void Boss_StateInit(int index)//ボス出現情報
 	boss[index].frame_attack = 0;
 	boss[index].animeAttack = FALSE;
 	boss[index].stay = FALSE;
+	boss[index].bosslasermodestop = FALSE;
 	boss[index].ready_attack = TRUE;
 	boss[index].attack = FALSE;
+	boss[index].laserattack = FALSE;
 	boss[index].move = TRUE;
-
+	//boss_dir.x = -1.0f;
 
 	//ステートをサーチ状態へ移行
 	//enemy[index].state = ENEMY_STATE_SEARCH;
@@ -317,248 +306,98 @@ void Boss_StateInit(int index)//ボス出現情報
 	destroy_boss_pos_y[index] = boss[index].pos.y;
 
 	boss[index].state = BOSS_STATE_CHASE;
-
 }
 
-//void Boss_StateSearch(int index)
+//void Enemy_StateSearch(int index)
 //{
+//	//フレームを進める
+//	enemy[index].frame++;
+//
+//	D3DXVECTOR2 dir;
+//
+//	//向いている方向のベクトルを作る
+//	switch (enemy[index].muki)
+//	{
+//	case 0://下向き
+//		dir = D3DXVECTOR2( 0.0f,  1.0f);
+//		break;
+//	case 1://左向き
+//		dir = D3DXVECTOR2(-1.0f,  0.0f);
+//		break;
+//	case 2://右向き
+//		dir = D3DXVECTOR2( 1.0f,  0.0f);
+//		break;
+//	case 3://上向き
+//		dir = D3DXVECTOR2( 0.0f, -1.0f);
+//		break;
+//	}
+//
 //	//プレイヤーの座標を取得する
-//	D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
+//	D3DXVECTOR2 pl_pos = D3DXVECTOR2(Player_GetCollision()->x, Player_GetCollision()->y);
 //
-//	D3DXVECTOR2 dir = pl_pos - boss[index].pos;
-//	float muki = pl_pos.x - boss[index].pos.x;
-//	D3DXVec2Normalize(&dir, &dir);
+//	//敵とプレイヤーの距離を計算する
+//	D3DXVECTOR2 vLen = enemy[index].pos - pl_pos;
+//	float length = D3DXVec2Length(&vLen);
 //
-//	if (muki < 0)
-//	{//プレイヤーがエネミーの左にいるなら左に向く
-//		boss[index].muki = 1;
-//	}
-//	else
-//	{//プレイヤーがエネミーの右にいるなら右に向く
-//		boss[index].muki = 2;
-//	}
-//
-//	dir *= BOSS_CHASE_SPEED;
-//
-//	if (boss[index].move == TRUE)//エネミーが吹っ飛ばされていなかったら
+//	//判定する距離の中に入っているかをチェックする
+//	if (length < ENEMY_SEARCH_RADIUS)
 //	{
-//		if (boss[index].stay == FALSE)
+//		//敵から見てプレイヤーの座標への方向ベクトルを作る
+//		D3DXVECTOR2 pl_dir = pl_pos - enemy[index].pos;
+//		D3DXVec2Normalize(&pl_dir, &pl_dir);
+//
+//		//敵の向きとプレイヤ座標への方向ベクトルで内積を取る
+//		float dot = D3DXVec2Dot(&dir, &pl_dir);
+//
+//		//判定する角度内に入っているかをチェックする
+//		if (dot > ENEMY_SEARCH_ANGLE)
 //		{
-//			boss[index].pos.x += dir.x;
+//			Explosion_Create(enemy[index].pos.x, enemy[index].pos.y);
+//
+//			//判定に通ればプレイヤー発見ステートに移行する
+//			enemy[index].state = ENEMY_STATE_FIND;
+//			enemy[index].frame = 0;
+//
+//			//戻って来る座標を保存する
+//			enemy[index].pos_return = enemy[index].pos;
 //		}
 //	}
-//	else
-//	{//吹っ飛ぶ処理
-//		boss[index].pos += boss[index].dir_destroy;
+//
+//	//向きを変化させる
+//	if (enemy[index].frame > 60)
+//	{
+//		enemy[index].muki = (enemy[index].muki + 1) % 4;
+//		enemy[index].frame = 0;
 //	}
 //
-//	boss[index].color = 0;  //通常状態
+//}
 //
-//	if (pl_pos.x + 200.0f > boss[index].pos.x&&pl_pos.x - 200.0f < boss[index].pos.x)//攻撃準備モーション判定
-//	{
-//		boss[index].attack = TRUE;
-//	}
+//void Enemy_StateFind(int index)
+//{
+//	//フレームを進める
+//	enemy[index].frame++;
 //
-//	if (boss[index].attack == TRUE)//攻撃準備
-//	{
-//		//フレームを進める
-//		boss[index].frame++;
+//	//一定時間経ったら追跡ステートへ移行
+//	if (enemy[index].frame > 20){
 //
-//		boss[index].color = 1;
-//		boss[index].stay = TRUE;
+//		enemy[index].frame = 0;
 //
-//		if (boss[index].frame > 30)
-//		{
-//			boss[index].animeAttack = TRUE;
-//			if (boss[index].ready_attack == TRUE)
-//			{
-//				boss[index].ready_attack = FALSE;
-//				Boss_Attack(index); //腕を振る
-//			}
-//		}
-//
-//		if (boss[index].animeAttack == TRUE)
-//		{
-//			//攻撃モーションフレームを進める
-//			boss[index].frame_attack++;
-//
-//			if (boss[index].frame_attack < 30)
-//			{
-//				boss[index].color = 2;
-//			}
-//
-//			if (boss[index].frame_attack >= 30)
-//			{
-//				boss[index].frame = 0;
-//				boss[index].frame_attack = 0;
-//
-//				boss[index].animeAttack = FALSE;
-//				boss[index].stay = FALSE;
-//				boss[index].ready_attack = TRUE;
-//				boss[index].attack = FALSE;
-//			}
-//		}
+//		//ステートをサーチ状態へ移行
+//		enemy[index].state = ENEMY_STATE_CHASE;
 //	}
 //}
 
-/*
-void Boss_StateFind(int index)
-{
-	//フレームを進める
-	boss[index].frame++;
-
-	//一定時間経ったら追跡ステートへ移行
-	if (boss[index].frame > 20) {
-
-		boss[index].frame = 0;
-
-		//ステートをサーチ状態へ移行
-		boss[index].state = BOSS_STATE_CHASE;
-	}
-}
-
 void Boss_StateChase(int index)
 {
-	//フレームを進める
-	boss[index].frame++;
-
-	//プレイヤーの座標を取得する
+	//プレイヤーの座標を取得する(takuadd)
 	D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
-
-	D3DXVECTOR2 dir = pl_pos - boss[index].pos;
-	D3DXVec2Normalize(&dir, &dir);
-	dir *= BOSS_CHASE_SPEED;
-
-	boss[index].pos += dir;
-
-	//移動方向から向きを作る
-	boss[index].muki = Boss_CalcMuki(dir);
-
-	//一定時間経ったら弾射出ステートへ移行
-	if (boss[index].frame > 120) {
-
-		boss[index].frame = 0;
-
-		//移動方向を保存
-		boss[index].dir_shot = dir;
-
-		//ランダムで「ばら撒き弾」もしくは「レーザー」を射出
-		if (rand() % 2)
-		{
-			//ステートをサーチ状態へ移行
-			boss[index].state = BOSS_STATE_SHOT;
-		}
-		else {
-			//ステートをサーチ状態へ移行
-			boss[index].state = BOSS_STATE_LASER;
-		}
-	}
-}
-
-void Boss_StateShot(int index)
-{
-	//フレームを進める
-	boss[index].frame++;
-
-	float shot_rad = atan2(boss[index].dir_shot.y, boss[index].dir_shot.x);
-	shot_rad = (float)(M_PI * 2 / 20)*boss[index].frame;
-
-	//射出角ベクトルをフレーム値で回転させる
-	D3DXVECTOR2 shot_dir;
-	shot_dir.x = boss[index].dir_shot.x*cosf(shot_rad) - boss[index].dir_shot.y*sinf(shot_rad);
-	shot_dir.y = boss[index].dir_shot.x*sinf(shot_rad) + boss[index].dir_shot.y*cosf(shot_rad);
-
-	//BossBullet_Create(boss[index].pos.x, boss[index].pos.y, shot_dir);
-
-	//一定時間経ったらクールダウンステートへ移行
-	if (boss[index].frame > 90) {
-
-		boss[index].frame = 0;
-
-		//ステートを帰還状態へ移行
-		boss[index].state = BOSS_STATE_COOLDOWN;
-	}
-}
-
-void Boss_StateLaser(int index)
-{
-	if (boss[index].frame == 0) {
-		//BossLaser_Create(boss[index].pos.x, boss[index].pos.y, boss[index].dir_shot);
-	}
-
-	//フレームを進める
-	boss[index].frame++;
-
-
-	//一定時間経ったらクールダウンステートへ移行
-	if (boss[index].frame > 90) {
-
-		boss[index].frame = 0;
-
-		//ステートを帰還状態へ移行
-		boss[index].state = BOSS_STATE_COOLDOWN;
-	}
-}
-
-void Boss_StateCooldown(int index)
-{
-	//フレームを進める
-	boss[index].frame++;
-
-	//一定時間経ったら帰還ステートへ移行
-	if (boss[index].frame > 30) {
-
-		boss[index].frame = 0;
-
-		//ステートを帰還状態へ移行
-		boss[index].state = BOSS_STATE_RETURN;
-	}
-}
-
-void Boss_StateReturn(int index)
-{
-	//フレームを進める
-	boss[index].frame++;
-
-	//プレイヤーの座標を取得する
-	D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
-
-	//帰還する座標への向きベクトルを計算する
-	D3DXVECTOR2 dir = boss[index].pos_return - boss[index].pos;
-
-	//ベクトルの長さを計算する
-	float length = D3DXVec2Length(&dir);
-
-	D3DXVec2Normalize(&dir, &dir);
-	dir *= BOSS_CHASE_SPEED;
-
-	boss[index].pos += dir;
-
-	//移動方向から向きを作る
-	boss[index].muki = Boss_CalcMuki(dir);
-
-	//帰還する座標に到着したら
-	if (length <= BOSS_CHASE_SPEED) {
-
-		boss[index].frame = 0;
-
-		//ステートをサーチ状態へ移行
-		boss[index].state = BOSS_STATE_SEARCH;
-	}
-}
-*/
-
-void Boss_StateChase(int index)
-{
-
-	//プレイヤーの座標を取得する
-	D3DXVECTOR2 pl_pos = D3DXVECTOR2(player.collision.s.p.x, player.collision.s.p.y);
-
 	boss_dir = pl_pos - boss[index].pos;
-	float muki = pl_pos.x - boss[index].pos.x;
+
+	float muki = player.pos.x - boss[index].pos.x;
 	D3DXVec2Normalize(&boss_dir, &boss_dir);
 
-	if (boss[index].bosshitpoint >= 1)
+
+	if (boss[index].hp >= 1)
 	{
 		if (boss[index].nock == TRUE)
 		{
@@ -577,31 +416,13 @@ void Boss_StateChase(int index)
 
 	if (muki < 0)
 	{//プレイヤーがエネミーの左にいるなら左に向く
-		boss[index].muki = 1;
+		boss[index].muki = 0;
 	}
 	else
 	{//プレイヤーがエネミーの右にいるなら右に向く
-		boss[index].muki = 2;
+		boss[index].muki = 1;
 	}
 
-	//dir *= BOSS_CHASE_SPEED;
-
-	if (boss[index].move == TRUE)//エネミーが吹っ飛ばされていなかったら
-	{
-		if (boss[index].stay == FALSE)
-		{
-			boss_dir *= BOSS_CHASE_SPEED;
-			//boss[index].pos.x += dir.x;
-		}
-		else
-		{
-			boss_dir = boss_dir * 0.0f;
-		}
-	}
-	//else
-	//{//吹っ飛ぶ処理
-	//	boss[index].pos += boss[index].dir_destroy;
-	//}
 
 	if (boss[index].bossstop || boss[index].bossleftstop) {
 		if (boss[index].bossstop) {
@@ -617,20 +438,21 @@ void Boss_StateChase(int index)
 			}
 		}
 	}
-
 	boss[index].color = 0;  //通常状態
 
-	if (pl_pos.x + 200.0f > boss[index].pos.x&&pl_pos.x - 200.0f < boss[index].pos.x)//攻撃準備モーション判定
+	if (player.pos.x + 150.0f > boss[index].pos.x&&player.pos.x - 150.0f < boss[index].pos.x)//攻撃準備モーション判定
 	{
 		boss[index].attack = TRUE;
+	
 	}
 
+	
 	if (boss[index].attack == TRUE)//攻撃準備
 	{
 		//フレームを進める
 		boss[index].frame++;
 
-		boss[index].color = 1;
+		boss[index].color = 0;
 		boss[index].stay = TRUE;
 
 		if (boss[index].frame > 100)
@@ -645,12 +467,13 @@ void Boss_StateChase(int index)
 
 		if (boss[index].animeAttack == TRUE)
 		{
+			bossatk_countdown++;
 			//攻撃モーションフレームを進める
 			boss[index].frame_attack++;
 
 			if (boss[index].frame_attack < 50)
 			{
-				boss[index].color = 2;
+				boss[index].color = 1;
 			}
 
 			if (boss[index].frame_attack >= 50)
@@ -665,74 +488,123 @@ void Boss_StateChase(int index)
 			}
 		}
 	}
-	////移動方向から向きを作る
-	//enemy[index].muki = Enemy_CalcMuki(dir);
 
-	////一定時間経ったら弾射出ステートへ移行
-	//if (enemy[index].frame > 120){
 
-	//	enemy[index].frame = 0;
 
-	//	//移動方向を保存
-	//	enemy[index].dir_shot = dir;
 
-	//	//ランダムで「ばら撒き弾」もしくは「レーザー」を射出
-	//	if (rand() % 2)
-	//	{
-	//		//ステートをサーチ状態へ移行
-	//		enemy[index].state = ENEMY_STATE_SHOT;
-	//	}
-	//	else{
-	//		//ステートをサーチ状態へ移行
-	//		enemy[index].state = ENEMY_STATE_LASER;
-	//	}
-	//}
-	boss[index].pos.x += boss_dir.x - player.speed.x + boss[index].dir_destroy.x + boss[index].t*destroy_boss_dir*15.0f;
+	if (boss[index].move == TRUE)//エネミーが吹っ飛ばされていなかったら
+	{
+		if (boss[index].stay == TRUE)
+		{
+			boss_dir.x = 0.0f;
+		}
+		else
+		{
+			if (boss[index].pos.x > 1000.0f)
+			{
+				boss_dir.x = -1.0f;
+			}
+			if (boss[index].pos.x < 150.0f)
+			{
+				boss_dir.x = 1.0f;
+			}
+		}
+
+	
+	}
+
+	//ボス移動できる
+	if (boss[index].bosslasermodestop && !BossLaser_IsEnable(0)) {
+		boss[index].bosslasermodestop = FALSE;
+	}
+
+
+	if (boss[index].bosslasermodestop == TRUE)
+	{
+		boss_dir.x = 0.0f;
+
+	}
+
+	if (boss[index].bossstop || boss[index].bossleftstop) {
+		boss_dir.x = 0.0f;
+		boss[index].bossstop = false;
+		boss[index].bossleftstop = false;
+	}
+
+	boss[index].pos.x += boss[index].dir_destroy.x + boss[index].t*destroy_boss_dir*10.0f;
 
 	if (boss[index].move == TRUE)
 	{
-		boss[index].pos.y = destroy_boss_pos_y[index] - (3 * boss[index].t*((1 - boss[index].t)*(1 - boss[index].t)))*300.0f;
+		if (player.camerastop) {
+			boss[index].pos.x += boss_dir.x;
+		}
+		else {
+			boss[index].pos.x += boss_dir.x - player.speed.x;
+		}
+		boss[index].pos.y = destroy_boss_pos_y[index] - (3 * boss[index].t*((1 - boss[index].t)*(1 - boss[index].t)))*200.0f;
+	}
+	else
+	{
+		boss[index].pos.y += boss[index].dir_destroy.y;
+		boss[index].rot += 2.0f;
+	}
+	if (boss[index].t > 1)
+	{
+		if (boss[index].pos.y < 450.0f)
+		{
+			boss[index].pos.y += 0.2f;
+		}
+	}
+
+
+	boss[index].pos.x += boss_dir.x*BOSS_CHASE_SPEED + boss[index].dir_destroy.x + boss[index].t*destroy_boss_dir*15.0f;
+
+
+	if (boss[index].move == TRUE)
+	{
+		boss[index].pos.y = destroy_boss_pos_y[index];
 	}
 	else
 	{
 		boss[index].pos.y += boss[index].dir_destroy.y;
 	}
 }
+//
+//void Boss_StateLaser(int index)
+//{
+//	if (boss[index].frame == 0) {
+//		BossLaser_Create(boss[index].muki, boss[index].pos.x, boss[index].pos.y, boss[index].dir_shot);
+//	}
+//
+//	//フレームを進める
+//	boss[index].frame++;
+//
+//
+//	//一定時間経ったらクールダウンステートへ移行
+//	if (boss[index].frame > 90) {
+//
+//		boss[index].frame = 0;
+//
+//		//ステートを帰還状態へ移行
+//		boss[index].state = BOSS_STATE_COOLDOWN;
+//	}
+//}
+//
+//void BOSS_StateCooldown(int index)
+//{
+//	//フレームを進める
+//	boss[index].frame++;
+//
+//	//一定時間経ったら帰還ステートへ移行
+//	if (boss[index].frame > 30) {
+//
+//		boss[index].frame = 0;
+//
+//		//ステートを帰還状態へ移行
+//		boss[index].state = BOSS_STATE_RETURN;
+//	}
+//}
 
-void Boss_StateLaser(int index)
-{
-	if (boss[index].frame == 0) {
-		BossLaser_Create(boss[index].pos.x, boss[index].pos.y, boss[index].dir_shot);
-	}
-
-	//フレームを進める
-	boss[index].frame++;
-
-
-	//一定時間経ったらクールダウンステートへ移行
-	if (boss[index].frame > 90) {
-
-		boss[index].frame = 0;
-
-		//ステートを帰還状態へ移行
-		boss[index].state = BOSS_STATE_COOLDOWN;
-	}
-}
-
-void BOSS_StateCooldown(int index)
-{
-	//フレームを進める
-	boss[index].frame++;
-
-	//一定時間経ったら帰還ステートへ移行
-	if (boss[index].frame > 30) {
-
-		boss[index].frame = 0;
-
-		//ステートを帰還状態へ移行
-		boss[index].state = BOSS_STATE_RETURN;
-	}
-}
 
 void Boss_Attack(int index)
 {
@@ -758,19 +630,62 @@ void Boss_Attack(int index)
 		break;
 	}
 
-	Bullet_IscoolTrue(index);
-	BossBullet_Create(boss[index].muki, hand.x, boss[index].pos.y, dir);
-	dir = D3DXVECTOR2(0.0f, 0.0f);
+	if (bossatk_countdown >= 250)	
+	{
+		boss[index].bosslasermodestop = TRUE;
+
+		boss[index].pos = { 800,450 };
+
+		bossatk_countdown = 0;
+
+	BossLaser_Create(boss[index].muki,( boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);
+
+	BossThunder_IscooolTrue(index);
+
+	BossThunder_Create(boss[index].muki, (boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);
+
+	BossFlame_IscooolTrue(index);
+
+	BossFlame_Create(boss[index].muki, (boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);
+	}
+	else if (bossatk_countdown >= 0 && bossatk_countdown < 250) {
+		Bullet_IscoolTrue(index);
+		BossBullet_Create(boss[index].muki, boss[index].pos.x, boss[index].pos.y, boss_dir);
+		dir = D3DXVECTOR2(0.0f, 0.0f);
+		
+	}
+	
+	
+	//Bullet_IscoolTrue(index);
+	//BossBullet_Create(boss[index].muki, hand.x, boss[index].pos.y, boss_dir);
+
+
+
+	/*  BossLaser_IscooolTrue(index);
+
+		BossLaser_Create(boss[index].pos.x - (frand() * SCREEN_WIDTH) / 2, boss[index].pos.y - 300.0f, boss_dir);
+
+		BossThunder_IscooolTrue(index);
+
+		BossThunder_Create(boss[index].pos.x - (frand() * SCREEN_WIDTH) / 2, boss[index].pos.y - 300.0f, boss_dir);
+
+		BossFlame_IscooolTrue(index);
+
+		BossFlame_Create(boss[index].pos.x - (frand() * SCREEN_WIDTH) / 2, boss[index].pos.y - 300.0f, boss_dir);*/
+
 }
+
 
 int Boss_AddDamage(int damage)
 {
-	boss[0].bosshitpoint -= damage;
-	return boss[0].bosshitpoint;
+	boss[0].hp -= damage;
+	return boss[0].hp;
 
 	if (boss[0].bosshitpoint < 0)
 		boss[0].bosshitpoint = 0;
 }
+
+
 
 int Boss_GetHitPoint()
 {
@@ -779,6 +694,7 @@ int Boss_GetHitPoint()
 
 void Boss_NockBack(int index)
 {
+	boss[index].nock = TRUE;
 	boss[index].t = 0;
 	destroy_boss_pos_x[index] = boss[index].pos.x;
 	destroy_boss_pos_y[index] = boss[index].pos.y;
@@ -792,4 +708,12 @@ void Boss_NockBack(int index)
 	{
 		destroy_boss_dir = -1;
 	}
+}
+
+BOSS_DATA GetBoss(int i) {
+	return boss[i];
+}
+
+void BossInfoMatch(BOSS_DATA info, int i) {
+	boss[i] = info;
 }

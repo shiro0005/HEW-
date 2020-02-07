@@ -8,5 +8,6 @@ void Game_Draw(void);
 void Game_AddScore(int score);
 void Game_AddKillCount(void);
 void Game_AddKillBossCount(void);
+int GetScore();
 
 //int Game_GetScore();

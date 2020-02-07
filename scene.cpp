@@ -2,6 +2,7 @@
 #include "title.h"
 #include "game.h"
 #include "result.h"
+#include "sound.h"
 
 
 static SCENE_INDEX g_SceneIndex;

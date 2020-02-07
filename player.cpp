@@ -3,17 +3,19 @@
 #include "main.h"
 #include "input.h"
 #include "sprite.h"
-#include "table.h"
+#include "player_table.h"
 #include "bullet.h"
 #include "blade.h"
 #include "collision.h"
-#include "enemy.h"
+#include "explosion2.h"
 #include "math.h"
 #include <time.h>
-#include "collisioncheck.h"
 #include "2D.h"
+#include "collisioncheck.h"
+#include "enemy.h"
+#include "sound.h"
 
-
+static ENEMY_DATA enemy;
 
 #define PLAYER_WIDTH	(32)
 #define PLAYER_HEIGHT	(32)
@@ -31,16 +33,6 @@ typedef enum {
 
 	PLAYER_MAX
 }PLAYER_STATE;
-
-typedef struct
-{
-	D3DXVECTOR2 vec;//スティックのｘｙ成分
-	float angle;//スティックの角度（度）
-	bool F[10];//スティック入力フラグ
-	bool rote[2];//右回転ならrote[0]がtrue、左回転ならrote[1]がtrue
-	int data[2];//Fのフラグのデータを格納する
-	int cntdata;//前のフレームと同じ結果の時に加算
-}STICK;
 
 //グローバル変数
 PLAYER player;
@@ -67,56 +59,37 @@ void Player_Initialize(void)
 	//プレイヤーの初期化
 	player.pos.x = SCREEN_WIDTH / 2;
 	player.pos.y = 430.0f;
-	player.mode = 2;
+	player.mode = 0;
+	player.size = D3DXVECTOR2(300.0f, 400.0f);
 
-	player.stop[0] = false;
-	player.stop[1] = false;
-	
+	player.attackcol = true;
+	player.stop = false;
+	player.leftstop = false;
 	player.color = 0;
 	player.muki = 0;
 	player.speed = D3DXVECTOR2(0.0f, 0.0f);
+	player.collision.s.v.x = 5.0f;
+	player.collision.s.v.y = 5.0f;
+	player.collision.r = PLAYER_WIDTH * 0.1f;
 
-	player.rotate = 0;
-	player.collision.s.p.x = (player.pos.x) + 50.0f*cos(D3DX_PI / 2 - player.rotate);
-	player.collision.s.p.y = (player.pos.y) - 50.0f*sin(D3DX_PI / 2 - player.rotate);
-	player.collision.s.v.x = 100.0f * cos(D3DX_PI / 2 + player.rotate);
-	if (player.rotate == 0) {
-		player.collision.s.v.x = 0;
-	}
-	player.collision.s.v.y = 100.0f * sin(D3DX_PI / 2 + player.rotate);
-	player.collision.r = PLAYER_WIDTH * 1.5f;
-
-	//右足
-	player.foot[0].r = 5.0f;
-	player.foot[0].s.p.x = player.pos.x;
-	player.foot[0].s.p.y = player.pos.y;
-	player.foot[0].s.v.x = 10;
-	player.foot[0].s.v.y = 20;
-
-	//左足
-	player.foot[1].r = 10.0f;
-	player.foot[1].s.p.x = player.pos.x;
-	player.foot[1].s.p.y = player.pos.y;
-	player.foot[1].s.v.x = 10;
-	player.foot[1].s.v.y = 20;
 
 
 
 	player.commbo = 0;
-	//player.animePattern = 0;
 	player.hitpoint = 10;
+	player.karacombo = true;
 	olddmg = 10;
-	player.attackcol = true;
 	player.allAT = 0;
-	//player.firstAT = false;
-	//player.frontAT = false;
 	cnt = 0;
 	player.com = 0;
+	player.comboflame = 0;
 	frame = 0;
 	for (int i = 0; i < 10; i++) {
 		stick.F[i] = false;
 	}
-
+	player.camerastop = true;
+	player.kyori = 0.0f;
+	player.fase = 0;
 }
 
 void Player_Finalize(void)
@@ -128,96 +101,17 @@ void Player_Finalize(void)
 //プレイヤー移動処理
 void Player_Update(void)
 {
+	if (player.fase == 1) {
+		if (player.kyori > 2000.0f)
+		{
+			player.camerastop = true;
+		}
+	}
 
 	player.speed = D3DXVECTOR2(0.0f, 0.0f);
-	/*if (Keyboard_IsPress(DIK_UP) || GamePad_IsPress(0, BUTTON_UP)){
-		dir.y -= 1.0f;
-		player.muki = 3;
-	}
-	if ((Keyboard_IsPress(DIK_UP) && Keyboard_IsPress(DIK_A)) || GamePad_IsPress(0, BUTTON_UP)&&GamePad_IsPress(0,BUTTON_Y)){
-		dir.y -= 10.0f;
-		player.muki = 3;
-		player.rotate += 0.1f;
-	}
-	if (Keyboard_IsPress(DIK_DOWN) || GamePad_IsPress(0, BUTTON_DOWN)){
-		dir.y += 1.0f;
-		player.muki = 0;
-	}
-	if ((Keyboard_IsPress(DIK_DOWN )&& Keyboard_IsPress(DIK_A)) || GamePad_IsPress(0, BUTTON_DOWN) && GamePad_IsPress(0, BUTTON_Y)) {
-		dir.y += 10.0f;
-		player.muki = 0;
-		player.rotate += 0.1f;
-	}
-	if (Keyboard_IsPress(DIK_LEFT) || GamePad_IsPress(0, BUTTON_LEFT)){
-		dir.x -= 1.0f;
-		player.muki = 1;
-	}
-	if ((Keyboard_IsPress(DIK_LEFT ) && Keyboard_IsPress(DIK_A)) || GamePad_IsPress(0, BUTTON_LEFT) && GamePad_IsPress(0, BUTTON_Y)) {
-		dir.x -= 10.0f;
-		player.muki = 1;
-		player.rotate += 0.1f;
-	}
-	if (Keyboard_IsPress(DIK_RIGHT) || GamePad_IsPress(0, BUTTON_RIGHT)){
-		dir.x += 1.0f;
-		player.muki = 2;
-	}
-	if ((Keyboard_IsPress(DIK_RIGHT) && Keyboard_IsPress(DIK_A)) || GamePad_IsPress(0, BUTTON_RIGHT) && GamePad_IsPress(0, BUTTON_Y)) {
-		dir.x += 10.0f;
-		player.muki = 2;
-		player.rotate += 0.1f;
-	}*/
 
-	/*//スペースが押されたら弾を発射
-	if (Keyboard_IsTrigger(DIK_Z) || GamePad_IsPress(0, BUTTON_Y) && GamePad_IsTrigger(0, BUTTON_A)) {
-		//カーソルキー入力がされていない場合、向きから発射方向を作成する
-		if (D3DXVec2Length(&dir) < 0.01f) {
-			switch (player.muki)
-			{
-			case 0://下向き
-				dir.y = 1.0f;
-				break;
-			case 1://左向き
-				dir.x = -1.0f;
-				break;
-			case 2://右向き
-				dir.x = 1.0f;
-				break;
-			case 3://上向き
-				dir.y = -1.0f;
-				break;
-			}
-		}
-		Bullet_Create(player.pos.x, player.pos.y, dir);
-		dir = D3DXVECTOR2(0.0f, 0.0f);
-	}
 
-	//ブレイドで攻撃
-	if (Keyboard_IsTrigger(DIK_X) || GamePad_IsPress(0, BUTTON_Y) && GamePad_IsTrigger(0, BUTTON_B)) {
-		//カーソルキー入力がされていない場合、向きから方向を作成する
-		if (D3DXVec2Length(&dir) < 0.01f) {
-			switch (player.muki)
-			{
-			case 0://下向き
-				dir.y = 1.0f;
-				break;
-			case 1://左向き
-				dir.x = -1.0f;
-				break;
-			case 2://右向き
-				dir.x = 1.0f;
-				break;
-			case 3://上向き
-				dir.y = -1.0f;
-				break;
-			}
-		}
 
-		Blade_Create(player.pos.x, player.pos.y, dir);
-		dir = D3DXVECTOR2(0.0f, 0.0f);
-	}*/
-
-	//マップとのヒットチェック
-	//Collision_HitCheck_TileMap(player.pos, &player.speed);
 
 	//スティックのX、Y成分を取得
 	stick.vec.x = GamePad_Stick().lX;
@@ -481,314 +375,488 @@ void Player_Update(void)
 		cnt = 0;//初期化
 	}
 
-
-
 	//移動値設定
 	if (player.allAT == 1) {
 		player.speed.x = 0;
 	}
 	else if (stick.rote[0]) {
-		player.speed.x = 5.0f;
+		player.speed.x = 6.5f;
 	}
 	else if (stick.rote[1]) {
-		player.speed.x = -5.0f;
+		player.speed.x = -6.5f;
 	}
 	else {
 		player.speed.x = 0;
 	}
 
-	//stopがtrueの時の場合
-
-	if (player.stop[0] && player.stop[1]) {
-		player.speed.x = 0.0f;
-		int CountTouch = 0;
-		for (int i = 0; i < ENEMY_COUNT; i++) {
-			ENEMY_DATA enemy = GetEnemy(i);
-			if (enemy.pos.x > player.pos.x + 32.0f || enemy.pos.x < player.pos.x - 32.0f) {
-				CountTouch++;
+	if (player.stop || player.leftstop) {
+		if (player.stop&&player.leftstop) {
+			player.speed.x = 0.0f;
+			player.stop = false;
+			player.leftstop = false;
+		}
+		else if (player.stop) {
+			if (player.speed.x > 0) {
+				player.speed.x = 0.0f;
+			}
+			else {
+				player.stop = false;
 			}
 		}
-		if (CountTouch == ENEMY_COUNT) {
-			player.stop[0] = false;
-			player.stop[1] = false;
-		}
-	}
-	else if (player.stop[0]) {
-		if (player.speed.x < 0) {
-			player.stop[0] = false;
-		}
-		else {
-			player.speed.x = 0.0f;
-		}
-	}
-	else if (player.stop[1]) {
-		if (player.speed.x > 0) {
-			player.stop[1] = false;
-		}
-		else {
-			player.speed.x = 0.0f;
+		else if (player.leftstop) {
+			if (player.speed.x < 0) {
+				player.speed.x = 0.0f;
+			}
+			else {
+				player.leftstop = false;
+			}
 		}
 	}
 
 	//allAT=0...非攻撃時, 1...初動攻撃, 2...上攻撃, 3...下攻撃
 
-
-
-
-	/*if (player.stop[0] || player.stop[1]) {
-		if (player.stop[0]&&player.stop[1]) {
-			player.speed.x = 0.0f;
-
-			player.stop[0] = false;
-			player.stop[1] = false;
-		}
-		else if (player.stop[0]) {
-			if (player.speed.x > 0) {
-				player.speed.x = -0.5f;
-			}
-			else {
-				player.stop[0] = false;
-			}
-		}
-		else if (player.stop[1]) {
-			if (player.speed.x < 0) {
-				player.speed.x = 0.5f;
-			}
-			else {
-				player.stop[1] = false;
-			}
-		}
-	}*/
-
-
 	//初動攻撃
-	//if ((stick.rote[0] || stick.rote[1]) && !player.firstAT) {//回転中なら
-	//	if (!player.rdy_attack) {
-	//		if (GamePad_IsPress(0, BUTTON_C)) {
-	//			player.mode = 0;
-	//			player.rdy_attack = true;
-	//			player.firstAT = true;
-	//			player.backAT = false;
-	//			player.kickAT = false;
-	//			frame = 0;
-	//			player.com = 1;
-	//		}
-	//	}
-	//}
-
-
 	if ((stick.rote[0] || stick.rote[1])) {//回転中なら
 		if (player.com == 0) {
-			if (GamePad_IsTrigger(0, BUTTON_C)) {
-				player.mode = 0;
-				player.allAT = 1;
-				frame = 0;
-				player.com = 1;
+			if (!(player.com == 2)) {
+				if (player.allAT == 0) {
+					if (GamePad_IsTrigger(0, BUTTON_C)) {
+						StopSound(SOUND_LABEL_SE_UE);
+						StopSound(SOUND_LABEL_SE_SURA);
+						StopSound(SOUND_LABEL_SE_SITA);
+						PlaySound(SOUND_LABEL_SE_FIRST);
+						player.comboflame = 0;
+						player.karacombo = true;
+						player.mode = 1;
+						player.attackcol = true;
+						player.com = 1;
+
+						player.allAT = 1;
+						frame = 0;
+						for (int i = 0; i < ENEMY_COUNT; i++)
+						{
+							enemy = GetEnemy(i);
+
+							enemy.damagecol = true;
+
+							EnemyInfoMatch(enemy, i);
+						}
+					}
+				}
 			}
 		}
 	}
 
 	if (player.com == 1) {
 		frame++;
-		if (frame % 10 == 0) {
+		if (frame % 40 == 0) {
 			player.animePattern++;
 		}
-		if (player.animePattern == 4) {
+		if (stick.rote[0])
+		{
+			//右足
+
+			player.first[0].r = 60.0f;
+			player.first[0].s.p.x = (player.pos.x) + 30.0f*cos(D3DX_PI / 2 - player.rotate);
+			player.first[0].s.p.y = (player.pos.y) - 30.0f*sin(D3DX_PI / 2 - player.rotate);
+			player.first[0].s.v.x = 80.0f*cos(D3DX_PI / 2 + player.rotate);
+			player.first[0].s.v.y = 80.0f*sin(D3DX_PI / 2 + player.rotate);
+
+
+			player.muki = 1;
+
+		}
+		else if (stick.rote[1])
+		{
+			//左足
+			player.first[1].r = 60.0f;
+			player.first[1].s.p.x = (player.pos.x) - 30.0f*cos(D3DX_PI / 2 - player.rotate);
+			player.first[1].s.p.y = (player.pos.y) - 30.0f*sin(D3DX_PI / 2 - player.rotate);
+			player.first[1].s.v.x = 60.0f*cos(D3DX_PI / 2 + player.rotate);
+			player.first[1].s.v.y = 60.0f*sin(D3DX_PI / 2 + player.rotate);
+
+			player.muki = 0;
+		}
+		player.size = D3DXVECTOR2(200.0f, 400.0f);
+		if (player.animePattern == 1) {
 			player.animePattern = 0;
 			player.allAT = 0;
-			player.attackcol = true;
 			player.com = 0;
 		}
 	}
-	////前攻撃
-	//if (player.commbo >= 1 && player.animePattern >= 3) {//回転中なら
-	//	if (GamePad_IsPress(0, BUTTON_C) && stick.F[6]) {
-	//		player.frontAT = true;
-	//		player.firstAT = false;
-	//		frame = 0;
-	//		player.mode = 2;
-	//		player.animePattern = 0;
-	//		player.rotate = 20.0f;
-	//	}
-	//}
 
-	//if (player.frontAT) {
-	//	frame++;
-	//	player.rotate = frame * 2.0f;
-	//	if (frame % 10 == 0) {
-	//		player.animePattern++;
-	//	}
-	//	if (player.animePattern == 8) {
-	//		player.animePattern = 0;
-	//		player.frontAT = false;
-	//	}
-	//}
-
+	//力丸の作る攻撃   上攻撃
 	if (player.commbo >= 1) {//回転中なら
-		if (player.com == 0) {
-			if (!(player.allAT == 2)) {
-				if (GamePad_IsPress(0, BUTTON_A)) {
-					frame = 0;
-					player.mode = 0;
-					player.animePattern = 0;
-					player.allAT = 2;
-					//テスト用
-					player.pos.y = 350.0f;
-					player.com = 2;
+		if (player.karacombo == false) {
+			if (player.comboflame < 60) {
+				if (!(player.allAT == 2)) {
+					if (GamePad_IsPress(0, BUTTON_X)) {
+						StopSound(SOUND_LABEL_SE_FIRST);
+						StopSound(SOUND_LABEL_SE_SURA);
+						StopSound(SOUND_LABEL_SE_SITA);
+						PlaySound(SOUND_LABEL_SE_UE);
+						player.comboflame = 0;
+						player.karacombo = true;
+						player.attackcol = true;
+						frame = 0;
+						player.mode = 2;
+						player.animePattern = 2;
+						player.allAT = 2;
+						player.com = 2;
+
+						Explosion_Create4(player.pos.x, player.pos.y);
+
+						//enemy攻撃準備解除
+						for (int i = 0; i < ENEMY_COUNT; i++)
+						{
+							enemy = GetEnemy(i);
+
+							enemy.damagecol = true;
+							enemy.attack == FALSE;
+							enemy.frame = 0;
+							enemy.stay = FALSE;
+
+							EnemyInfoMatch(enemy, i);
+						}
+					}
 				}
 			}
 		}
-	}
-
-	//テスト用
-	if (player.pos.y < 430.0f)
-	{
-		player.pos.y += 2.0f;
 	}
 
 	if (player.com == 2) {
 		frame++;
-		if (frame % 10 == 0) {
-			player.animePattern++;
+
+		if (player.animePattern == 2)
+		{
+
+			//上攻撃の当たり判定
+			player.UpCol.r = PLAYER_WIDTH * 0.5f;
+			player.UpCol.s.p.x = player.pos.x - 70.0f;
+			player.UpCol.s.p.y = player.pos.y + 20.0f;
+			player.UpCol.s.v.x = 150.0f;
+			player.UpCol.s.v.y = -40.0f;
+
+			player.pos.y -= 12.0f;
+
+
 		}
-		if (player.animePattern == 4) {
+		if (player.animePattern == 1)
+		{
+			player.pos.y -= 6.0f;
+		}
+		if (player.animePattern == 0)
+		{
+			player.pos.y += 18.0f;
+		}
+
+		if (frame % 10 == 0) {
+			player.animePattern--;
+		}
+
+		player.muki = 0;
+		player.size = D3DXVECTOR2(400.0f, 200.0f);
+		player.rotate = 0.0f;
+		if (player.animePattern == 1)
+		{
+			//上攻撃の当たり判定
+			player.UpCol.r = PLAYER_WIDTH * 0.5f;
+			player.UpCol.s.p.x = player.pos.x + 10.0f;
+			player.UpCol.s.p.y = player.pos.y + 70.0f;
+			player.UpCol.s.v.x = -20.0f;
+			player.UpCol.s.v.y = -140.0f;
+
+			player.size = D3DXVECTOR2(200.0f, 400.0f);
+		}
+
+		if (player.animePattern == 0) {
+			//上攻撃の当たり判定
+			player.UpCol.r = PLAYER_WIDTH * 0.5f;
+			player.UpCol.s.p.x = player.pos.x + 90.0f;
+			player.UpCol.s.p.y = player.pos.y + 25.0f;
+			player.UpCol.s.v.x = -180.0f;
+			player.UpCol.s.v.y = -55.0f;
+		}
+		player.speed.x *= 2;
+
+		if (player.animePattern == -1) {
 			player.animePattern = 0;
 			player.allAT = 0;
 			player.com = 0;
 		}
 	}
 
-	//力丸の作る攻撃2
+	//力丸の作る攻撃2　下攻撃
 	if (player.commbo >= 1) {//回転中なら
-		if (player.com == 0) {
-			if (!(player.allAT == 3)) {
-				if (GamePad_IsPress(0, BUTTON_B)) {
-					frame = 0;
-					player.mode = 0;
-					player.animePattern = 0;
-					player.allAT = 3;
-					//テスト用
-					player.pos.y = 500.0f;
-					player.com = 3;
+		if (!(player.com == 2)) {
+			if (player.karacombo == false) {
+				if (player.comboflame < 60) {
+					if (!(player.allAT == 3)) {
+						if (GamePad_IsPress(0, BUTTON_B)) {
+							StopSound(SOUND_LABEL_SE_UE);
+							StopSound(SOUND_LABEL_SE_FIRST);
+							StopSound(SOUND_LABEL_SE_SURA);
+							PlaySound(SOUND_LABEL_SE_SITA);
+							player.comboflame = 0;
+							player.karacombo = true;
+							player.attackcol = true;
+							frame = 0;
+							player.mode = 3;
+							player.animePattern = 0;
+							player.allAT = 3;
+							player.com = 3;
+
+							//enemy攻撃準備解除
+							for (int i = 0; i < ENEMY_COUNT; i++)
+							{
+								enemy = GetEnemy(i);
+
+								enemy.damagecol = true;
+								enemy.attack == FALSE;
+								enemy.frame = 0;
+								enemy.stay = FALSE;
+
+								EnemyInfoMatch(enemy, i);
+							}
+						}
+					}
 				}
 			}
-
 		}
-	}
-
-	//テスト用
-	if (player.pos.y > 430.0f)
-	{
-		player.pos.y -= 2.0f;
 	}
 
 	if (player.com == 3) {
 		frame++;
-		if (frame % 10 == 0) {
+
+		if (frame % 5 == 0) {
 			player.animePattern++;
 		}
-		if (player.animePattern == 4) {
-			player.animePattern = 0;
+
+		if (frame % 30 == 0) {
 			player.attackcol = true;
+			for (int i = 0; i < ENEMY_COUNT; i++)
+			{
+				enemy = GetEnemy(i);
+
+				enemy.damagecol = true;
+
+				EnemyInfoMatch(enemy, i);
+			}
+		}
+
+		//下攻撃の当たり判定
+		player.DownCol.r = PLAYER_WIDTH * 0.5f;
+		player.DownCol.s.p.x = player.pos.x + 80.0f;
+		player.DownCol.s.p.y = player.pos.y - 25.0f;
+		player.DownCol.s.v.x = -180.0f;
+		player.DownCol.s.v.y = 60.0f;
+
+		player.muki = 0;
+		player.size = D3DXVECTOR2(400.0f, 200.0f);
+		player.rotate = 0.0f;
+		if (player.animePattern % 3 == 1)
+		{
+			//下攻撃の当たり判定
+			player.DownCol.r = PLAYER_WIDTH * 0.5f;
+			player.DownCol.s.p.x = player.pos.x;
+			player.DownCol.s.p.y = player.pos.y - 30.0f;
+			player.DownCol.s.v.x = 0.0f;
+			player.DownCol.s.v.y = 60.0f;
+
+			player.size = D3DXVECTOR2(200.0f, 200.0f);
+		}
+
+		if (player.animePattern % 3 == 2) {
+			//下攻撃の当たり判定
+			player.DownCol.r = PLAYER_WIDTH * 0.5f;
+			player.DownCol.s.p.x = player.pos.x - 80.0f;
+			player.DownCol.s.p.y = player.pos.y - 25.0f;
+			player.DownCol.s.v.x = 180.0f;
+			player.DownCol.s.v.y = 60.0f;
+		}
+
+		if (player.animePattern == 15) {
+			StopSound(SOUND_LABEL_SE_SITA);
+			player.animePattern = 0;
 			player.allAT = 0;
 			player.com = 0;
 		}
 	}
 
-	//コンボ数リセット
-	player.combo_frame++;
-	if (player.combo_frame > 180)
+	//力丸の作る攻撃3　スライディング
+	if (player.commbo >= 1) {//回転中なら
+		if (!(player.com == 2)) {
+			if (player.karacombo == false) {
+				if (player.comboflame < 60) {
+					if (!(player.allAT == 4)) {
+						if (GamePad_IsPress(0, BUTTON_A)) {
+							StopSound(SOUND_LABEL_SE_UE);
+							StopSound(SOUND_LABEL_SE_FIRST);
+							StopSound(SOUND_LABEL_SE_SITA);
+							PlaySound(SOUND_LABEL_SE_SURA);
+							player.comboflame = 0;
+							player.karacombo = true;
+							player.attackcol = true;
+							frame = 0;
+							player.mode = 3;
+							player.animePattern = 0;
+							player.allAT = 4;
+							//テスト用
+							player.com = 4;
+
+							//enemy攻撃準備解除
+							for (int i = 0; i < ENEMY_COUNT; i++)
+							{
+								enemy = GetEnemy(i);
+
+								enemy.damagecol = true;
+								enemy.attack == FALSE;
+								enemy.frame = 0;
+								enemy.stay = FALSE;
+
+								EnemyInfoMatch(enemy, i);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	if (player.com == 4) {
+		frame++;
+		//テスト用
+		player.speed.x *= 3.0f;
+		player.size = D3DXVECTOR2(400.0f, 200.0f);
+		player.rotate = 0.0f;
+		player.muki = 0;
+		if (stick.rote[0])
+		{
+
+			player.slidemuki = 0;
+			//下攻撃の当たり判定
+			player.SlideCol[0].r = PLAYER_WIDTH * 0.5f;
+			player.SlideCol[0].s.p.x = player.pos.x - 80.0f;
+			player.SlideCol[0].s.p.y = player.pos.y - 25.0f;
+			player.SlideCol[0].s.v.x = 180.0f;
+			player.SlideCol[0].s.v.y = 60.0f;
+			player.animePattern = 2;
+
+		}
+		else if (stick.rote[1])
+		{
+			player.slidemuki = 1;
+			//下攻撃の当たり判定
+			player.SlideCol[1].r = PLAYER_WIDTH * 0.5f;
+			player.SlideCol[1].s.p.x = player.pos.x + 80.0f;
+			player.SlideCol[1].s.p.y = player.pos.y - 25.0f;
+			player.SlideCol[1].s.v.x = -180.0f;
+			player.SlideCol[1].s.v.y = 60.0f;
+
+			player.animePattern = 0;
+		}
+
+		if (frame % 30 == 0) {
+			player.animePattern++;
+		}
+		if (player.animePattern == 1 || player.animePattern == 3) {
+			player.animePattern = 0;
+			player.allAT = 0;
+			player.com = 0;
+		}
+	}
+
+	////コンボ処理
+	if (player.comboflame >= 60)
 	{
 		player.commbo = 0;
 	}
 
+	//コンボ受付時間を進める
+	player.comboflame++;
 
-	if (player.hitpoint != olddmg) {
-		player.mode = 1;
-	}
-
-	switch (player.mode)
+	//非戦闘時通常テクスチャ
+	if (player.com == 0)
 	{
-	case 1:
-		frame++;
-		if (frame % 5 == 0) {
-			player.animePattern++;
-		}
-		if (player.animePattern == 8) {
-			player.animePattern = 0;
-			player.mode = 0;
-		}
-		break;
-	case 2:
-		break;
-	case 3:
-		break;
-	default:
-		break;
+
+		player.mode = 0;
+		player.size = D3DXVECTOR2(300.0f, 400.0f);
 	}
-
-
 
 	// 座標の更新処理
-	//player.pos += player.speed;
+	if (player.camerastop) {
+		player.pos += player.speed;
+		if (player.pos.x < 50.0f) {
+			player.pos.x = 50.0f;
+		}
+		if (player.pos.x > SCREEN_WIDTH - 50.0f) {
+			player.pos.x = SCREEN_WIDTH - 50.0f;
+		}
+	}
 
+	if (!player.camerastop) {
+
+		if (!(507.0f < player.pos.x && player.pos.x < 517.0f))
+		{
+			if (player.pos.x < SCREEN_WIDTH / 2)
+			{
+				player.pos.x += player.speed.x;
+			}
+			if (player.pos.x > SCREEN_WIDTH / 2)
+			{
+				if (player.speed.x >= 5.0f) {
+					player.pos.x -= player.speed.x;
+				}
+				if (player.speed.x <= -5.0f) {
+					player.pos.x += player.speed.x * 2;
+				}
+			}
+		}
+		else
+		{
+			if (player.speed.x < 0.0f)
+			{
+				player.pos.x += player.speed.x;
+			}
+		}
+		if (player.pos.x < 50.0f) {
+			player.pos.x = 50.0f;
+			player.speed.x = 0.0f;
+		}
+		//プレイヤーの進んだ距離
+		player.kyori += player.speed.x;
+	}
 	//当たり判定用座標の更新
 
 	//体全体の当たり判定
-	player.collision.r = PLAYER_WIDTH * 1.3f;
-	player.collision.s.p.x = (player.pos.x) + 50.0f*cos(D3DX_PI / 2 - player.rotate);
-	player.collision.s.p.y = (player.pos.y) - 50.0f*sin(D3DX_PI / 2 - player.rotate);
-	player.collision.s.v.x = 100.0f*cos(D3DX_PI / 2 + player.rotate);
-	if (player.rotate == 0) {
-		player.collision.s.v.x = 0;
-	}
-	player.collision.s.v.y = 100.0f*sin(D3DX_PI / 2 + player.rotate);
+	player.collision.r = PLAYER_WIDTH * 2.0f;
+	player.collision.s.p.x = (player.pos.x) + 30.0f*cos(D3DX_PI / 2 - player.rotate);
+	player.collision.s.p.y = (player.pos.y) - 30.0f*sin(D3DX_PI / 2 - player.rotate);
+	player.collision.s.v.x = 80.0f*cos(D3DX_PI / 2 + player.rotate);
+	player.collision.s.v.y = 80.0f*sin(D3DX_PI / 2 + player.rotate);
 
-	//右足
-	player.foot[0].s.p.x = player.pos.x;
-	player.foot[0].s.p.y = player.pos.y;
-	player.foot[0].s.v.x = 60.0f*cos(D3DX_PI / 2 + player.rotate - 0.7f);
-	player.foot[0].s.v.y = 60.0f*sin(D3DX_PI / 2 + player.rotate - 0.7f);
-
-	//左足
-	player.foot[1].s.p.x = player.pos.x + 10.0f;
-	player.foot[1].s.p.y = player.pos.y + 15.0f;
-	player.foot[1].s.v.x = 70.0f*cos(D3DX_PI / 2 + player.rotate + 0.87f);
-	player.foot[1].s.v.y = 70.0f*sin(D3DX_PI / 2 + player.rotate + 0.87f);
 
 	//player.rotate = 0;
 	olddmg = player.hitpoint;
-	////スキップするフレーム値を超えたら
-	//if (++player.animeFrame > ANIME_PATTERN_SKIPFRAME)
-	//{
-	//	//アニメパターンを進める(最大値を超えたらリセット)
-	//	if (++player.animePattern >= ANIME_PATTERN_MAX)
-	//		player.animePattern = 0;
-	//	//フレームは元に戻す
-	//	player.animeFrame = 0;
-	//}
 
 }
 
 void Player_Draw(void)
 {
-	Sprite_Draw(TEXTURE_INDEX_YUKIDARUMA,
+
+	Sprite_Draw(TEXTURE_INDEX_PLAYER,
 		player.pos.x,
 		player.pos.y,
-		GetAnimTbl(player.mode, player.animePattern).x * 256,
-		GetAnimTbl(player.mode, player.animePattern).y * 256,
-		32,
-		32,
-		16,
-		16,
-		4.0f,
-		6.0f,
+		GetAnimTblp(player.mode,player.muki, player.animePattern%3).x * 256,
+		GetAnimTblp(player.mode,player.muki, player.animePattern%3).y * 256,
+		player.size.x,
+		player.size.y,
+		player.size.x/2,
+		player.size.y/2,
+		0.5f,
+		0.5f,
 		player.rotate);
-
-
-	colcheck(player.collision);
-	colcheck(player.foot[0]);
-	colcheck(player.foot[1]);
 }
 
 //const Capsule2D* Player_GetCollision()
@@ -811,17 +879,14 @@ void Player_Draw(void)
 //	return player.firstAT;
 //}
 //
-//int Player_GetHitPoint()
-//{
-//	return player.hitpoint;
-//}
 
-void Player_AddDamage(int damage)
-{
-	player.hitpoint -= damage;
-	if (player.hitpoint < 0)
-		player.hitpoint = 0;
-}
+
+//void Player_AddDamage(int damage)
+//{
+//	player.hitpoint -= damage;
+//	if (player.hitpoint < 0)
+//		player.hitpoint = 0;
+//}
 
 PLAYER GetPlayer() {
 	return player;
@@ -829,4 +894,13 @@ PLAYER GetPlayer() {
 
 void PlayerInfoMatch(PLAYER info) {
 	player = info;
+}
+
+void ChengeCamerastop(bool f) {
+	player.camerastop = f;
+}
+
+void FaseCount(int f)
+{
+	player.fase = f;
 }

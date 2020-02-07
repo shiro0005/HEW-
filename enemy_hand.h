@@ -20,3 +20,4 @@ const Capsule2D* Bullet_GetCollision(int index);
 bool Bullet_Iscool(int index);
 void Bullet_IscoolFlase(int index);
 void Bullet_IscoolTrue(int index);
+float GetHundPos(int i);

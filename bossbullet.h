@@ -17,7 +17,8 @@ void BossBullet_Create(int muki, float x, float y, D3DXVECTOR2 dir);
 void BossBullet_Destroy(int index);
 bool BossBullet_IsEnable(int index);
 
-//const Capsule2D* BossBullet_GetCollision(int index);
+const Capsule2D* BossBullet_GetCollision(int index);
 bool BossBullet_Iscool(int index);
 void BossBullet_IscoolFlase(int index);
 void BossBullet_IscoolTrue(int index);
+float GetHandPos(int i);

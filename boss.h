@@ -24,9 +24,11 @@ typedef struct
 	bool		stay;		//UŒ‚’†‚ÌˆÚ“®”»’è
 	bool		ready_attack;
 	bool		attack;
+	bool       laserattack;
 	bool		move;		//‚Á”ò‚Î‚³‚ê‚½Œã‚¦‚Ë‚İ[‚Ì’Ç”öˆ—‚ğ~‚ß‚é
 	bool		nock;
 	bool        bossstop;
+	bool        bosslasermodestop;
 	bool       bossleftstop;
 	int			frame_alpha;
 	int			state;
@@ -38,6 +40,7 @@ typedef struct
 	float 		t;
 
 }BOSS_DATA;
+
 
 #define BOSS_COUNT 1
 
@@ -54,3 +57,6 @@ const Capsule2D* Boss_GetCollision(int index);
 void Boss_StateInit(int index);
 void Boss_Attack(int index);
 void Boss_NockBack(int index);
+
+BOSS_DATA GetBoss(int);
+void BossInfoMatch(BOSS_DATA info, int i);
