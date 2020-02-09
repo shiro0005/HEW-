@@ -38,7 +38,7 @@ D3DXVECTOR2 boss_dir;
 float destroy_boss_pos_x[BOSS_COUNT];
 float destroy_boss_pos_y[BOSS_COUNT];
 int destroy_boss_dir;
-
+static int Frame;
 typedef enum
 {
 	//ENEMY_STATE_INIT,		//èâä˙âª
@@ -74,6 +74,7 @@ void Boss_StateChase(int index);
 
 void Boss_Initialize(void)
 {
+	Frame = 0;
 	destroy_boss_dir = 0.0f;
 	boss_dir.x = 1.0f;
 	for (int i = 0; i < BOSS_COUNT; i++)
@@ -210,8 +211,8 @@ void Boss_Draw(void)
 void Boss_Destroy(int index)
 {
 	boss[index].move = FALSE;
-
-	if (destroy_boss_dir == 1)
+	Frame++;
+	/*if (destroy_boss_dir == 1)
 	{
 		boss[index].dir_destroy.x = 2.0f;
 	}
@@ -222,7 +223,15 @@ void Boss_Destroy(int index)
 	boss[index].dir_destroy.y = -1.5f;
 	D3DXVec2Normalize(&boss[index].dir_destroy, &boss[index].dir_destroy);
 
-	boss[index].dir_destroy *= BOSS_DESTROY_SPEED;
+	boss[index].dir_destroy *= BOSS_DESTROY_SPEED;*/
+	if (Frame % 2 == 0) {
+		boss[index].pos.x += 1;
+		boss[index].pos.y += 1;
+	}
+	else {
+		boss[index].pos.x -= 1;
+		boss[index].pos.y += 1;
+	}
 }
 
 bool Boss_IsEnable(int index)
