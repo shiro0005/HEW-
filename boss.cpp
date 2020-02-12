@@ -96,10 +96,10 @@ void Boss_Update(void)
 
 		if (boss[i].hp <= 0)
 		{
-			Boss_Destroy(i);
+			boss[i].state = BOSS_STATE_DEAD;
 		}
 
-		if (boss[i].move == FALSE)
+		if (boss[i].move == FALSE||boss[i].state==BOSS_STATE_DEAD)
 		{
 			if (!boss[i].enable) {
 				continue;
@@ -176,6 +176,10 @@ void Boss_Update(void)
 		case ENEMY_STATE_COOLDOWN:
 			Enemy_StateCooldown(i);
 			break;*/
+
+	case BOSS_STATE_DEAD:
+		Boss_Destroy(0);
+		break;
 	default:
 		break;
 	}
@@ -225,13 +229,18 @@ void Boss_Destroy(int index)
 
 	boss[index].dir_destroy *= BOSS_DESTROY_SPEED;*/
 	if (Frame % 2 == 0) {
-		boss[index].pos.x += 1;
+		boss[index].pos.x += 20;
 		boss[index].pos.y += 1;
 	}
 	else {
-		boss[index].pos.x -= 1;
+		boss[index].pos.x -= 20;
 		boss[index].pos.y += 1;
 	}
+
+	if (Frame>200) {
+		boss[index].pos.y += 20;
+	}
+	D3DXVec2Normalize(&boss[index].dir_destroy, &boss[index].dir_destroy);
 }
 
 bool Boss_IsEnable(int index)
@@ -555,7 +564,7 @@ void Boss_StateChase(int index)
 	else
 	{
 		boss[index].pos.y += boss[index].dir_destroy.y;
-		boss[index].rot += 2.0f;
+		//boss[index].rot += 2.0f;
 	}
 	if (boss[index].t > 1)
 	{

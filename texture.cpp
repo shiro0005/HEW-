@@ -40,7 +40,7 @@ static const TextureFile g_TextureFiles[] = {
 	{ "asset/texture/jougai.png", 256, 2560 },
 	{ "asset/texture/attack_speed.png", 256, 448 },
 	{ "asset/texture/taisou.png", 1100, 1700 },
-    {"asset/texture/number3.png",320,32},
+    {"asset/texture/number3.png",320,34},
     {"asset/texture/titlemozi.png",710,205},
     {"asset/texture/タイトル　体.png",720,540},
     {"asset/texture/タイトル　葬.png",720,540},
