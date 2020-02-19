@@ -395,6 +395,19 @@ void Enemy_Draw(void)
 		}
 
 		Sprite_Draw(TEXTURE_INDEX_ZOMBIE,
+			enemy[i].pos.x+10.0f,
+			enemy[i].pos.y,
+			GetAnimTbl2(enemy[i].color, enemy[i].muki, enemy[i].animePattern).x * 256,
+			GetAnimTbl2(enemy[i].color, enemy[i].muki, enemy[i].animePattern).y * 256,
+			200,
+			300,
+			100,
+			150,
+			0.5f,
+			0.5f,
+			enemy[i].rot,0xff000000);
+
+		Sprite_Draw(TEXTURE_INDEX_ZOMBIE,
 			enemy[i].pos.x,
 			enemy[i].pos.y,
 			GetAnimTbl2(enemy[i].color, enemy[i].muki, enemy[i].animePattern).x * 256,

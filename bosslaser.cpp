@@ -9,38 +9,9 @@
 #include <math.h>
 #include "collisioncheck.h"
 
-#define BOSSLASER_IMAGEMAX (100)
-#define BOSSLASER_SPEED	(32)
-#define BOSSLASER_VISIBLE_FRAME 100
-
-#define BOSSLASER_MAX    (1)
-#define BOSSLASER_WIDTH  (64)
-#define BOSSLASER_HEIGHT (64)
-#define BOSSLASER_PATTERN_FRAME (1)
-#define BOSSLASER_PATTERN_MAX   (22)
-#define BOSSLASER_PATTERN_H_MAX (4)
-
-#define LASERHINT_MAX (256)
-#define LASERHINT_WIDTH (64)
-#define LASERHINT_HEIGHT (64)
 
 
-typedef struct
-{
-	float		x, y;			//表示位置
-	float		move_x, move_y;	//
-	float		rotation;
-	Capsule2D		coco;
-	bool		bEnable;
-	bool coool;
-	bool hit;  //playerにレーザーがＨＩＴしたかどうかのflg
-	
-	int frame;
-	int pattern;
-
-}BossLaser;
-
-int laserhint_countdown;
+int laserhint_countdown[LASERHINT_MAX];
 
 BossLaser g_laserhint[LASERHINT_MAX];
 
@@ -49,13 +20,15 @@ BossLaser g_BossLaser[BOSSLASER_MAX];
 
 void BossLaser_Initialize(void)
 {
-	laserhint_countdown = 0;
+
 	g_BossLaser[0].coool = false;
+
 	//配列内の全てを無効化する
 	for (int i = 0; i < BOSSLASER_MAX; i++) {
 		g_BossLaser[i].bEnable = false;
 		g_laserhint[i].bEnable = false;
 		g_BossLaser[i].hit = false;
+		laserhint_countdown[i] = 0;
 	}
 }
 
@@ -101,7 +74,8 @@ void BossLaser_Update(void)
 	//}
 
 
-	for (int i = 0; i <1; i++) {
+	for (int i = 0; i < BOSSLASER_MAX; i++)
+	{
 
 		//laserhint_countdown++;
 		//if (laserhint_countdown>5000)
@@ -126,23 +100,42 @@ void BossLaser_Update(void)
 			laserhint_countdown = 0;
 		}*/
 
-	
-		if (g_BossLaser[i].bEnable) {
 
-			laserhint_countdown++;
-			
-			if (laserhint_countdown >= 500) {
+		if (g_BossLaser[i].bEnable)
+		{
+
+			laserhint_countdown[i]++;
+
+			if (laserhint_countdown[i] >= 200)
+			{
 				g_BossLaser[i].frame++;
-				if (g_BossLaser[i].frame % 4 == 0) {
+				if (g_BossLaser[i].frame % 4 == 0)
+				{
 					g_BossLaser[i].pattern++;
 				}
 				//最後のパターンが表示されたら終了する処理
-				if (g_BossLaser[i].pattern >= BOSSLASER_PATTERN_MAX) {
+				if (g_BossLaser[i].pattern >= BOSSLASER_PATTERN_MAX)
+				{
 					g_BossLaser[i].bEnable = false;
-					laserhint_countdown = 0;
+					laserhint_countdown[i] = 0;
 					BossLaser_IscooolFlase(0);
 					g_BossLaser[0].hit = false;
 				}
+			}
+		}
+	}
+
+
+	for (int i = 0; i < LASERHINT_MAX; i++) {
+		if (g_laserhint[i].bEnable) {
+
+			if (g_laserhint[i].frame % 4 == 0) {
+				g_laserhint[i].pattern++;
+			}
+
+			//最後のパターンが表示されたら終了する処理
+			if (g_laserhint[i].pattern >= LASERHINT_PATTERN_MAX) {
+				g_laserhint[i].pattern = 0;
 			}
 		}
 	}
@@ -150,65 +143,68 @@ void BossLaser_Update(void)
 
 void BossLaser_Draw(void)
 {
-	if (laserhint_countdown > 0 && laserhint_countdown < 500)
-	{
-		for (int i = 0; i < BOSSLASER_MAX; i++) {
 
+	for (int i = 0; i < LASERHINT_MAX; i++) {
+		if (laserhint_countdown[i] > 0 && laserhint_countdown[i] < 200)
+		{
 			if (!g_laserhint[i].bEnable) {
 				continue;
 			}
 
 			// 現在表示するべきパターン番号から切り取り座標を算出する
-			int tx = BOSSLASER_WIDTH * (g_laserhint[i].pattern % BOSSLASER_PATTERN_H_MAX);
-			int ty = BOSSLASER_HEIGHT * (g_laserhint[i].pattern / BOSSLASER_PATTERN_H_MAX);
+			int tx = LASERHINT_WIDTH * (g_laserhint[i].pattern % LASERHINT_PATTERN_H_MAX);
+			int ty = LASERHINT_HEIGHT * (g_laserhint[i].pattern / LASERHINT_PATTERN_H_MAX);
 
 
-			Sprite_Draw(TEXTURE_INDEX_CIRCLE,
-				g_BossLaser[i].x,
-				SCREEN_HEIGHT / 2,
-				0.0f,
-				0.0f,
-				720,
-				720,
-				360,
-				360,
-				0.3f,
-				0.3f,
-				0.0f);
-		}
-	}
-	else if (laserhint_countdown >= 500)
-	{
-
-		for (int i = 0; i < BOSSLASER_MAX; i++) {
-
-			if (!g_BossLaser[i].bEnable) {
-				continue;
-			}
-
-			BossLaser_IscooolTrue(0);
-
-			// 現在表示するべきパターン番号から切り取り座標を算出する
-			int tx = BOSSLASER_WIDTH * (g_BossLaser[i].pattern % BOSSLASER_PATTERN_H_MAX);
-			int ty = BOSSLASER_HEIGHT * (g_BossLaser[i].pattern / BOSSLASER_PATTERN_H_MAX);
-
-
-			Sprite_Draw(TEXTURE_INDEX_LASER,
+			Sprite_Draw(TEXTURE_INDEX_HINT,
 				g_BossLaser[i].x,
 				SCREEN_HEIGHT / 2,
 				tx,
 				ty,
-				BOSSLASER_WIDTH,
-				BOSSLASER_HEIGHT,
-				BOSSLASER_WIDTH / 2,
-				BOSSLASER_HEIGHT / 2,
-				3.0f,
+				LASERHINT_WIDTH,
+				LASERHINT_HEIGHT,
+				LASERHINT_WIDTH / 2,
+				LASERHINT_HEIGHT / 2,
+				1.5f,
 				8.0f,
 				0.0f);
-			colcheck(g_BossLaser[i].coco);
 		}
-		
+		else if (laserhint_countdown[i] >= 200)
+		{
+
+			for (int i = 0; i < BOSSLASER_MAX; i++) {
+
+				if (!g_BossLaser[i].bEnable) {
+					continue;
+				}
+
+				BossLaser_IscooolTrue(0);
+
+				// 現在表示するべきパターン番号から切り取り座標を算出する
+				int tx = BOSSLASER_WIDTH * (g_BossLaser[i].pattern % BOSSLASER_PATTERN_H_MAX);
+				int ty = BOSSLASER_HEIGHT * (g_BossLaser[i].pattern / BOSSLASER_PATTERN_H_MAX);
+
+
+				Sprite_Draw(TEXTURE_INDEX_LASER,
+					g_BossLaser[i].x,
+					SCREEN_HEIGHT / 2,
+					tx,
+					ty,
+					BOSSLASER_WIDTH,
+					BOSSLASER_HEIGHT,
+					BOSSLASER_WIDTH / 2,
+					BOSSLASER_HEIGHT / 2,
+					3.0f,
+					8.0f,
+					0.0f);
+				//colcheck(g_BossLaser[i].coco);
+			}
+		}
+
 	}
+
+
+
 }
 
 void BossLaser_Create(int muki, float x, float y, D3DXVECTOR2 dir)
@@ -237,7 +233,7 @@ void BossLaser_Create(int muki, float x, float y, D3DXVECTOR2 dir)
 		g_BossLaser[i].coco.s.p.x = x;
 		g_BossLaser[i].coco.s.p.y = y;
 		g_BossLaser[i].coco.s.v.x = 0.0f;
-		g_BossLaser[i].coco.s.v.y =+380.0f;
+		g_BossLaser[i].coco.s.v.y = +380.0f;
 		g_BossLaser[i].coco.r = BOSSLASER_WIDTH * 0.8f;
 
 		// 有効フレームを初期化
@@ -245,7 +241,7 @@ void BossLaser_Create(int muki, float x, float y, D3DXVECTOR2 dir)
 
 		g_BossLaser[i].pattern = 0;
 
-	
+
 		// 弾を有効にする
 		g_BossLaser[i].bEnable = true;
 

@@ -20,10 +20,12 @@
 #define BOSSTHUNDER_PATTERN_MAX   (22)
 #define BOSSTHUNDER_PATTERN_H_MAX (4)
 
-#define THUNDERHINT_MAX (256)
+#define THUNDERHINT_MAX (512)
 #define THUNDERHINT_WIDTH (64)
 #define THUNDERHINT_HEIGHT (64)
-
+#define THUNDERHINT_PATTERN_FRAME (1)
+#define THUNDERHINT_PATTERN_MAX   (52)
+#define THUNDERHINT_PATTERN_H_MAX (4)
 typedef struct
 {
 	float		x, y;			//表示位置
@@ -80,6 +82,20 @@ void BossThunder_Update(void)
 		}
 		
 	}
+
+	for (int i = 0; i < THUNDERHINT_MAX; i++) {
+		if (g_thunderhint[i].bEnable) {
+
+			if (g_thunderhint[i].frame % 4 == 0) {
+				g_thunderhint[i].pattern++;
+			}
+
+			//最後のパターンが表示されたら終了する処理
+			if (g_thunderhint[i].pattern >= THUNDERHINT_PATTERN_MAX) {
+				g_thunderhint[i].bEnable = false;
+			}
+		}
+	}
 }
 	//		//座標更新
 	//		for (int n = 0; n < BOSSTHUNDER_IMAGEMAX; n++) {
@@ -126,28 +142,28 @@ void BossThunder_Draw(void)
 {
 	if (thunderhint_countdown > 0 && thunderhint_countdown < 500)
 	{
-		for (int i = 0; i < BOSSTHUNDER_MAX; i++) {
+		for (int i = 0; i < THUNDERHINT_MAX; i++) {
 
 			if (!g_thunderhint[i].bEnable) {
 				continue;
 			}
 
 			// 現在表示するべきパターン番号から切り取り座標を算出する
-			int tx = BOSSTHUNDER_WIDTH * (g_thunderhint[i].pattern % BOSSTHUNDER_PATTERN_H_MAX);
-			int ty = BOSSTHUNDER_HEIGHT * (g_thunderhint[i].pattern / BOSSTHUNDER_PATTERN_H_MAX);
+			int tx = THUNDERHINT_WIDTH * (g_thunderhint[i].pattern %  THUNDERHINT_PATTERN_H_MAX);
+			int ty = THUNDERHINT_HEIGHT * (g_thunderhint[i].pattern / THUNDERHINT_PATTERN_H_MAX);
 
 
-			Sprite_Draw(TEXTURE_INDEX_CIRCLE,
-				g_BossThunder[i].x,
+			Sprite_Draw(TEXTURE_INDEX_HINT,
+				g_thunderhint[i].x,
 				SCREEN_HEIGHT / 2,
-				0.0f,
-				0.0f,
-				720,
-				720,
-				360,
-				360,
-				0.3f,
-				0.3f,
+				tx,
+				ty,
+				THUNDERHINT_WIDTH,
+				THUNDERHINT_HEIGHT,
+				THUNDERHINT_WIDTH / 2,
+				THUNDERHINT_HEIGHT / 2,
+				3.0f,
+				8.0f,
 				0.0f);
 		}
 	}

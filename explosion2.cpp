@@ -2,7 +2,7 @@
 #include "texture.h"
 #include "sprite.h"
 #include "player.h"
-
+#include "boss.h"
 //impact
 #define EXPLOSION_MAX    (256)
 #define EXPLOSION_WIDTH  (64)
@@ -42,6 +42,22 @@
 #define CONTROLLER_PATTERN_FRAME (1)
 #define CONTROLLER_PATTERN_MAX   (9)
 #define CONTROLLER_PATTERN_H_MAX (9)
+
+//bossdisappear
+#define DISAPPEAR_MAX    (256)
+#define DISAPPEAR_WIDTH  (64)
+#define DISAPPEAR_HEIGHT (64)
+#define DISAPPEAR_PATTERN_FRAME (1)
+#define DISAPPEAR_PATTERN_MAX   (48)
+#define DISAPPEAR_PATTERN_H_MAX (4)
+
+//bossappear
+#define APPEAR_MAX    (256)
+#define APPEAR_WIDTH  (64)
+#define APPEAR_HEIGHT (64)
+#define APPEAR_PATTERN_FRAME (1)
+#define APPEAR_PATTERN_MAX   (52)
+#define APPEAR_PATTERN_H_MAX (4)
 
 
 typedef struct Explosion_tag//impact
@@ -88,6 +104,24 @@ typedef struct Cont_tag1//場外
 	float rot;
 } Cont;
 
+typedef struct Dap_tag1//場外
+{
+	float x, y;			//座標
+	bool enable;		//
+	int create_frame;
+	int pattern;
+	float rot;
+} Dap;
+
+typedef struct App_tag1//場外
+{
+	float x, y;			//座標
+	bool enable;		//
+	int create_frame;
+	int pattern;
+	float rot;
+} App;
+
 static Cont       g_controller[EXPLOSION_MAX];
 static Explosion g_Explosions[EXPLOSION_MAX];
 static Explosion2 g_Explosions2[EXPLOSION2_MAX];
@@ -96,7 +130,9 @@ static Explosion4 g_Explosions4[EXPLOSION4_MAX];
 
 static int g_ExplosionFrameCount = 0;
 static PLAYER player;
-
+static BOSS_DATA boss;
+static Dap g_Explosions5[DISAPPEAR_MAX];
+static App g_Explosions6[APPEAR_MAX];
 
 void Explosion_Initialize2(void)
 {
@@ -114,6 +150,14 @@ void Explosion_Initialize2(void)
 
 	for (int i = 0; i < EXPLOSION4_MAX; i++) {
 		g_Explosions4[i].enable = false;
+	}
+
+	for (int i = 0; i < DISAPPEAR_MAX; i++) {
+		g_Explosions5[i].enable = false;
+	}
+
+	for (int i = 0; i < APPEAR_MAX; i++) {
+		g_Explosions6[i].enable = false;
 	}
 }
 
@@ -193,6 +237,33 @@ void Explosion_Update2(void)
 		}
 	}
 
+	for (int i = 0; i < DISAPPEAR_MAX; i++) {
+		if (g_Explosions5[i].enable) {
+
+			int age = g_ExplosionFrameCount - g_Explosions5[i].create_frame;
+
+			g_Explosions5[i].pattern = age / DISAPPEAR_PATTERN_FRAME;
+
+			//最後のパターンが表示されたら終了する処理
+			if (g_Explosions5[i].pattern >= DISAPPEAR_PATTERN_MAX) {
+				g_Explosions5[i].enable = false;
+			}
+		}
+	}
+
+	for (int i = 0; i < APPEAR_MAX; i++) {
+		if (g_Explosions6[i].enable) {
+
+			int age = g_ExplosionFrameCount - g_Explosions6[i].create_frame;
+
+			g_Explosions6[i].pattern = age / APPEAR_PATTERN_FRAME;
+
+			//最後のパターンが表示されたら終了する処理
+			if (g_Explosions6[i].pattern >= APPEAR_PATTERN_MAX) {
+				g_Explosions6[i].enable = false;
+			}
+		}
+	}
 	g_ExplosionFrameCount++;
 }
 
@@ -316,6 +387,53 @@ void Explosion_Draw2(void)
 			0.5f,
 			g_controller[i].rot);
 	}
+	for (int i = 0; i < DISAPPEAR_MAX; i++) {
+
+		if (!g_Explosions5[i].enable) {
+			continue;
+		}
+
+		// 現在表示するべきパターン番号から切り取り座標を算出する
+		int tx = DISAPPEAR_WIDTH * (g_Explosions5[i].pattern % DISAPPEAR_PATTERN_H_MAX);
+		int ty = DISAPPEAR_HEIGHT * (g_Explosions5[i].pattern / DISAPPEAR_PATTERN_H_MAX);
+
+		Sprite_Draw(TEXTURE_INDEX_DELETE,
+			g_Explosions5[i].x,
+			g_Explosions5[i].y,
+			tx,
+			ty,
+			DISAPPEAR_WIDTH,
+			DISAPPEAR_HEIGHT,
+			DISAPPEAR_WIDTH / 2,
+			DISAPPEAR_HEIGHT / 2,
+			3.0f,
+			3.0f,
+			g_Explosions5[i].rot);
+	}
+	for (int i = 0; i < APPEAR_MAX; i++) {
+
+		if (!g_Explosions6[i].enable) {
+			continue;
+		}
+
+		// 現在表示するべきパターン番号から切り取り座標を算出する
+		int tx = APPEAR_WIDTH * (g_Explosions6[i].pattern % APPEAR_PATTERN_H_MAX);
+		int ty = APPEAR_HEIGHT * (g_Explosions6[i].pattern / APPEAR_PATTERN_H_MAX);
+
+		Sprite_Draw(TEXTURE_INDEX_CREATE,
+			g_Explosions6[i].x,
+			g_Explosions6[i].y,
+			tx,
+			ty,
+			APPEAR_WIDTH,
+			APPEAR_HEIGHT,
+			APPEAR_WIDTH / 2,
+			APPEAR_HEIGHT / 2,
+			3.0f,
+			3.0f,
+			g_Explosions6[i].rot);
+	}
+
 }
 
 void Explosion_Create2(float x, float y)
@@ -415,5 +533,43 @@ void Controller_Create(float x, float y, float rot)
 void controllerfalse(bool f) {
 	for (int i = 0; i < EXPLOSION3_MAX; i++) {
 		g_controller[i].enable = f;
+	}
+}
+
+void Explosion_Create6(float x, float y, float rot)
+{
+	for (int i = 0; i < DISAPPEAR_MAX; i++) {
+
+		if (g_Explosions5[i].enable) {
+			continue;
+		}
+
+		g_Explosions5[i].x = x;
+		g_Explosions5[i].y = y;
+		g_Explosions5[i].create_frame = g_ExplosionFrameCount;
+		g_Explosions5[i].rot = rot;
+		g_Explosions5[i].pattern = 0;
+		g_Explosions5[i].enable = true;
+
+		break;
+	}
+}
+
+void Explosion_Create7(float x, float y, float rot)
+{
+	for (int i = 0; i < APPEAR_MAX; i++) {
+
+		if (g_Explosions6[i].enable) {
+			continue;
+		}
+
+		g_Explosions6[i].x = x;
+		g_Explosions6[i].y = y;
+		g_Explosions6[i].create_frame = g_ExplosionFrameCount;
+		g_Explosions6[i].rot = rot;
+		g_Explosions6[i].pattern = 0;
+		g_Explosions[i].enable = true;
+
+		break;
 	}
 }

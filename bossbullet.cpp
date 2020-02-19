@@ -11,7 +11,7 @@
 
 #define BOSSBULLET_WIDTH  (64)
 #define BOSSBULLET_HEIGHT (64)
-#define BOSSBULLET_SPEED_X (2.0f)
+#define BOSSBULLET_SPEED_X (3.0f)
 #define BOSSBULLET_SPEED_Y (0.8f)
 #define BOSSBULLET_VISIBLE_FRAME 25
 
@@ -46,7 +46,7 @@ void BossBullet_Update(void)
 		if (g_BossBullets[i].bEnable) {
 			g_BossBullets[i].pos.x += g_BossBullets[i].move_x * BOSSBULLET_SPEED_X;
 			g_BossBullets[i].pos.y += g_BossBullets[i].move_y * BOSSBULLET_SPEED_Y;
-			g_BossBullets[i].colcol.r = BOSSBULLET_WIDTH*0.8f;
+			g_BossBullets[i].colcol.r = BOSSBULLET_WIDTH*1.8f;
 			g_BossBullets[i].colcol.s.p.x = g_BossBullets[i].pos.x - 20.0f;
 			g_BossBullets[i].colcol.s.p.y = g_BossBullets[i].pos.y;
 			g_BossBullets[i].colcol.s.v.x = 128.0f;
@@ -106,11 +106,11 @@ void BossBullet_Create(int muki, float x, float y, D3DXVECTOR2 dir)
 
 		if (muki == 0)
 		{
-			g_BossBullets[i].pos.x -= 60.0f;
+			g_BossBullets[i].pos.x -= 90.0f;
 		}
 		if (muki == 1)
 		{
-			g_BossBullets[i].pos.x += 30.0f;
+			g_BossBullets[i].pos.x += 60.0f;
 		}
 
 		g_BossBullets[i].pos.y = y - 60.0f;

@@ -40,6 +40,8 @@ STICK stick;
 static int cnt;
 static int frame;
 static int olddmg;//過去のダメージ
+static int damagecnt;//ダメージ判定のカウント
+
 /*
 メモ
 
@@ -65,7 +67,7 @@ void Player_Initialize(void)
 	player.attackcol = true;
 	player.stop = false;
 	player.leftstop = false;
-	player.color = 0;
+	//player.color = 0;
 	player.muki = 0;
 	player.speed = D3DXVECTOR2(0.0f, 0.0f);
 	player.collision.s.v.x = 5.0f;
@@ -73,7 +75,7 @@ void Player_Initialize(void)
 	player.collision.r = PLAYER_WIDTH * 0.1f;
 
 
-
+	player.color = 0xffffffff;
 
 	player.commbo = 0;
 	player.hitpoint = 10;
@@ -110,6 +112,14 @@ void Player_Update(void)
 
 	player.speed = D3DXVECTOR2(0.0f, 0.0f);
 
+
+	if (player.color == 0xffff0000) {
+		damagecnt++;
+		if (damagecnt >= 20) {
+			damagecnt = 0;
+			player.color = 0xffffffff;
+		}
+	}
 
 
 
@@ -846,7 +856,7 @@ void Player_Draw(void)
 {
 
 	Sprite_Draw(TEXTURE_INDEX_PLAYER,
-		player.pos.x,
+		player.pos.x+10.0f,
 		player.pos.y,
 		GetAnimTblp(player.mode,player.muki, player.animePattern%3).x * 256,
 		GetAnimTblp(player.mode,player.muki, player.animePattern%3).y * 256,
@@ -856,7 +866,21 @@ void Player_Draw(void)
 		player.size.y/2,
 		0.5f,
 		0.5f,
-		player.rotate);
+		player.rotate, 0xff0f0f0f);
+	Sprite_Draw(TEXTURE_INDEX_PLAYER,
+		player.pos.x,
+		player.pos.y,
+		GetAnimTblp(player.mode, player.muki, player.animePattern % 3).x * 256,
+		GetAnimTblp(player.mode, player.muki, player.animePattern % 3).y * 256,
+		player.size.x,
+		player.size.y,
+		player.size.x / 2,
+		player.size.y / 2,
+		0.5f,
+		0.5f,
+		player.rotate, 
+		player.color);//g_color 0xffffffff基本色
+			   //　0x　|ff アルファ｜｜ff レッド　｜ff グリーン｜｜ff　ブルー｜
 }
 
 //const Capsule2D* Player_GetCollision()

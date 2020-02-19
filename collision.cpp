@@ -560,6 +560,7 @@ void Collision_Enemy_hand_vs_Player(void)
 				// “–‚½‚Á‚Ä‚é
 				//Player_AddDamage(1);
 				player.hitpoint -= 1;
+				player.color = 0xffff0000;
 				if (player.pos.x < GetHundPos(i)) {
 					Explosion_Create5(90.0f, player.pos.y,0.0f);
 				}
@@ -589,6 +590,7 @@ void Collision_Boss_hand_vs_Player(void)
 				// “–‚½‚Á‚Ä‚é
 				//Player_AddDamage(1);
 				player.hitpoint -= 1;
+				player.color = 0xffff0000;
 				//Explosion_Create5(player.pos.x, player.pos.y);
 				if (player.pos.x < GetHandPos(i)) {
 					Explosion_Create5(90.0f, player.pos.y, 0.0f);
@@ -843,7 +845,8 @@ void Collision_Bosslaser_vs_Player(void)
 			{
 				Laserhit(true);
 				// “–‚½‚Á‚Ä‚é
-				player.hitpoint -= 2;
+				player.hitpoint -= 3;
+				player.color = 0xffff0000;
 			}
 
 

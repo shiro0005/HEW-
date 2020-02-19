@@ -10,3 +10,5 @@ void Explosion_Create4(float x, float y);
 void Explosion_Create5(float x, float y, float rot);
 void Controller_Create(float x, float y, float rot);
 void controllerfalse(bool f);
+void Explosion_Create6(float x, float y, float rot);
+void Explosion_Create7(float x, float y, float rot);

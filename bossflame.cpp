@@ -20,9 +20,12 @@
 #define BOSSFLAME_PATTERN_MAX   (22)
 #define BOSSFLAME_PATTERN_H_MAX (4)
 
-#define FLAMEHINT_MAX (256)
-#define FLAMEHINT_WIDTH (64)
-#define FLAMEHINT_HEIGHT (64)
+#define FLAMEHINT_MAX (512)
+#define FLAMEHINT_WIDTH (128)
+#define FLAMEHINT_HEIGHT (256)
+#define FLAMEHINT_PATTERN_FRAME (1)
+#define FLMAEHINT_PATTERN_MAX   (52)
+#define FLAMEHINT_PATTERN_H_MAX (4)
 
 typedef struct
 {
@@ -79,6 +82,20 @@ void BossFlame_Update(void)
 		}
 	}
 
+	for (int i = 0; i < FLAMEHINT_MAX; i++) {
+		if (g_flamehint[i].bEnable) {
+			
+			if (g_flamehint[i].frame % 4 == 0) {
+				g_flamehint[i].pattern++;
+			}
+
+			//最後のパターンが表示されたら終了する処理
+			if (g_flamehint[i].pattern >= FLMAEHINT_PATTERN_MAX) {
+				g_flamehint[i].bEnable = false;
+			}
+		}
+	}
+
 	//		//座標更新
 	//		for (int n = 0; n < BOSSFLAME_IMAGEMAX; n++) {
 	//			if (g_BossFlame[i].flameIMG[n].bEnable)
@@ -123,28 +140,28 @@ void BossFlame_Draw(void)
 
 	if (flamehint_countdown > 0 && flamehint_countdown < 500)
 	{
-	for (int i = 0; i < BOSSFLAME_MAX; i++) {
+	for (int i = 0; i < FLAMEHINT_MAX; i++) {
 
 		if (!g_flamehint[i].bEnable) {
 			continue;
 		}
 
 		// 現在表示するべきパターン番号から切り取り座標を算出する
-		int tx = BOSSFLAME_WIDTH * (g_flamehint[i].pattern % BOSSFLAME_PATTERN_H_MAX);
-		int ty = BOSSFLAME_HEIGHT * (g_flamehint[i].pattern / BOSSFLAME_PATTERN_H_MAX);
+		int tx = FLAMEHINT_WIDTH * (g_flamehint[i].pattern % FLAMEHINT_PATTERN_H_MAX);
+		int ty = FLAMEHINT_HEIGHT * (g_flamehint[i].pattern / FLAMEHINT_PATTERN_H_MAX);
 
 
-		Sprite_Draw(TEXTURE_INDEX_CIRCLE,
-			g_BossFlame[i].x,
-			SCREEN_HEIGHT / 2,
-			0.0f,
-			0.0f,
-			720,
-			720,
-			360,
-			360,
-			0.3f,
-			0.3f,
+		Sprite_Draw(TEXTURE_INDEX_HINT,
+			g_flamehint[i].x,
+			SCREEN_HEIGHT/2,
+			tx,
+			ty,
+			FLAMEHINT_WIDTH,
+			FLAMEHINT_HEIGHT,
+			FLAMEHINT_WIDTH / 2,
+			FLAMEHINT_HEIGHT / 2,
+			3.0f,
+			8.0f,
 			0.0f);
 	}
 }

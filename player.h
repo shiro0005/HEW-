@@ -7,7 +7,7 @@ typedef struct
 {
 	D3DXVECTOR2 pos;			//位置
 	int			muki;			//向き
-	int			color;			//色
+	//int			color;			//色
 	D3DXVECTOR2 speed;          //プレイヤー移動
 	int			animePattern;	//アニメパターン
 	int			mode;           //プレイヤー状態
@@ -35,6 +35,7 @@ typedef struct
 	D3DXVECTOR2		size;		//テクスチャの大きさ
 	float		kyori;	//playerの進んだ距離
 	int			fase;
+	D3DCOLOR    color;//spriteの色
 }PLAYER;
 
 typedef struct

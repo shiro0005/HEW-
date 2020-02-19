@@ -5,13 +5,13 @@
 #include "player.h"
 #include "bossbullet.h"
 #include "bosslaser.h"
-#include "bossflame.h"
-#include "bossthunder.h"
+//#include "bossflame.h"
+//#include "bossthunder.h"
 #include "explosion.h"
 #include "enemy_hand.h"
 #include "game.h"
 #include "collisioncheck.h"
-
+#include "explosion2.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -134,11 +134,11 @@ void Boss_Update(void)
 	}
 
 	//当たり判定用座標の更新
-	boss[0].colcol.r = BOSS_WIDTH * 0.6f;
-	boss[0].colcol.s.p.x = boss[0].pos.x;
-	boss[0].colcol.s.p.y = boss[0].pos.y - 50.0f;
+	boss[0].colcol.r = BOSS_WIDTH * 1.0f;
+	boss[0].colcol.s.p.x = boss[0].pos.x+50.0f;
+	boss[0].colcol.s.p.y = boss[0].pos.y - 150.0f;
 	boss[0].colcol.s.v.x = 0.0f;
-	boss[0].colcol.s.v.y = 100.0f;
+	boss[0].colcol.s.v.y = 300.0f;
 
 	//スキップするフレーム値を超えたら
 	if (++boss[0].animeFrame > ANIME_PATTERN_SKIPFRAME)
@@ -194,6 +194,21 @@ void Boss_Draw(void)
 			continue;
 		}
 
+		//colcheck(boss[i].colcol);
+
+		Sprite_Draw(TEXTURE_INDEX_ZOMBIE,
+			boss[i].pos.x+20.0f,
+			boss[i].pos.y,
+			GetAnimTbl2(boss[i].color, boss[i].muki, boss[i].animePattern).x * 256,
+			GetAnimTbl2(boss[i].color, boss[i].muki, boss[i].animePattern).y * 256,
+			200,
+			300,
+			100,
+			150,
+			2.5f,
+			2.5f,
+			boss[i].rot,0xff000000);
+		
 		Sprite_Draw(TEXTURE_INDEX_ZOMBIE,
 			boss[i].pos.x,
 			boss[i].pos.y,
@@ -203,11 +218,9 @@ void Boss_Draw(void)
 			300,
 			100,
 			150,
-			1.2f,
-			1.2f,
+			2.5f,
+			2.5f,
 			boss[i].rot);
-		/*colcheck(boss[i].colcol);*/
-
 
 	}
 }
@@ -295,7 +308,7 @@ void Boss_StateInit(int index)//エネミー出現情報
 	enemy[index].pos.y = frand() * SCREEN_HEIGHT;*/
 	boss[index].rot = 0;
 	boss[index].color = 0;
-	boss[index].pos = { 1000,450 };
+	boss[index].pos = { 1000,400 };
 	boss[index].hp = 10;
 	boss[index].t = 0;
 
@@ -458,7 +471,7 @@ void Boss_StateChase(int index)
 	}
 	boss[index].color = 0;  //通常状態
 
-	if (player.pos.x + 150.0f > boss[index].pos.x&&player.pos.x - 150.0f < boss[index].pos.x)//攻撃準備モーション判定
+	if (player.pos.x + 250.0f > boss[index].pos.x&&player.pos.x - 250.0f < boss[index].pos.x)//攻撃準備モーション判定
 	{
 		boss[index].attack = TRUE;
 	
@@ -648,25 +661,56 @@ void Boss_Attack(int index)
 		break;
 	}
 
-	if (bossatk_countdown >= 250)	
+	if (bossatk_countdown >= 100)	
 	{
+		Explosion_Create6(boss[index].pos.x, boss[index].pos.y, 0.0f);//destroy
 		boss[index].bosslasermodestop = TRUE;
 
 		boss[index].pos = { 800,450 };
 
+		Explosion_Create7(800, 450, 0.0f);//create
+
 		bossatk_countdown = 0;
 
-	BossLaser_Create(boss[index].muki,( boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);
+	//BossLaser_Create(boss[index].muki,( boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);
+		
+		for (int i = 0; i < LASERHINT_MAX; i++) {
+			switch (rand() % 5)
+			{
+			case 0:
+				BossLaser_Create(boss[index].muki, boss[index].pos.x - 650.0f, boss[index].pos.y - 300.0f, boss_dir);
+				break;
 
-	BossThunder_IscooolTrue(index);
+			case 1:
+				BossLaser_Create(boss[index].muki, boss[index].pos.x - 500.0f, boss[index].pos.y - 300.0f, boss_dir);
+				break;
+
+			case 2:
+				BossLaser_Create(boss[index].muki, boss[index].pos.x - 350.0f, boss[index].pos.y - 300.0f, boss_dir);
+				break;
+
+			case 3:
+				BossLaser_Create(boss[index].muki, boss[index].pos.x - 200.0f, boss[index].pos.y - 300.0f, boss_dir);
+				break;
+
+			case 4:
+				BossLaser_Create(boss[index].muki, boss[index].pos.x - 50.0f, boss[index].pos.y - 300.0f, boss_dir);
+				break;
+
+			default:
+				break;
+			}
+		}
+		
+	/*BossThunder_IscooolTrue(index);
 
 	BossThunder_Create(boss[index].muki, (boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);
 
 	BossFlame_IscooolTrue(index);
 
-	BossFlame_Create(boss[index].muki, (boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);
+	BossFlame_Create(boss[index].muki, (boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);*/
 	}
-	else if (bossatk_countdown >= 0 && bossatk_countdown < 250) {
+	else if (bossatk_countdown >= 0 && bossatk_countdown < 100) {
 		Bullet_IscoolTrue(index);
 		BossBullet_Create(boss[index].muki, boss[index].pos.x, boss[index].pos.y, boss_dir);
 		dir = D3DXVECTOR2(0.0f, 0.0f);
