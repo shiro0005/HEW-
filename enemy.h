@@ -35,6 +35,7 @@ int			hp;
 	bool		korobu;		//“]‚Ô
 	int			frame_alpha;
 	int			state;
+	int			ao;	//ƒ]ƒ“ƒr‚Ìí—Ş
 	D3DXVECTOR2 dir_destroy;		//‚Á”ò‚Î‚³‚ê‚é•ûŒü
 	D3DXVECTOR2 pos_return;
 

@@ -29,6 +29,9 @@ D3DXVECTOR2 animeTable2[2][2][3] =
 	}
 };
 
+
+
+
 D3DXVECTOR2 GetAnimTbl2(int set, int muki, int anim)
 {
 	return animeTable2[set][muki][anim];

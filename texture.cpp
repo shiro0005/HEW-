@@ -52,6 +52,7 @@ static const TextureFile g_TextureFiles[] = {
 	{"asset/texture/bosscreate.png",256,830},
 	{"asset/texture/bossdelete.png",256,765},
 	{"asset/texture/bosslaserhint.png",512,3328},
+	{ "asset/texture/zonbi yowa.png", 720, 1400 },
 };
 
 static const int TEXTURE_FILE_COUNT = sizeof(g_TextureFiles) / sizeof(g_TextureFiles[0]);

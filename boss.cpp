@@ -309,7 +309,7 @@ void Boss_StateInit(int index)//エネミー出現情報
 	boss[index].rot = 0;
 	boss[index].color = 0;
 	boss[index].pos = { 1000,400 };
-	boss[index].hp = 10;
+	boss[index].hp = 20;
 	boss[index].t = 0;
 
 	boss[index].muki = 1;

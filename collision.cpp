@@ -841,7 +841,7 @@ void Collision_Bosslaser_vs_Player(void)
 		if (BossLaser_Iscoool(0) == true)
 		{
 			// 弾のコリジョンとエネミーのコリジョン
-			if (HitCupsule(player.collision, BossLaser_GetCollision(0)) && !Get_laserhit())
+			if (HitCupsule(player.collision, BossLaser_GetCollision(i)) && !Get_laserhit())
 			{
 				Laserhit(true);
 				// 当たってる

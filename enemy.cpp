@@ -3,6 +3,7 @@
 #include "main.h"
 #include "sprite.h"
 #include "enemy_table.h"
+#include "enemy_table2.h"
 #include "player.h"
 #include "explosion.h"
 #include "explosion2.h"
@@ -62,12 +63,12 @@ void Enemy_Initialize(void)
 	enemy[0].pos = { 0,450 };
 	enemy[1].pos = { 1100,450 };
 	enemy[2].pos = { 1000,450 };
-	enemy[3].pos = { 1200,450 };
+	enemy[3].pos = { 1200,470 };
 	enemy[4].pos = { 200,-100 };
 	enemy[5].pos = { 0,450 };
 	enemy[6].pos = { 1000,450 };
-	enemy[7].pos = { 1200,450 };
-	enemy[8].pos = { 1600,450 };
+	enemy[7].pos = { 1200,470 };
+	enemy[8].pos = { 1600,470 };
 	enemy[9].pos = { 0,-100 };
 	enemy[10].pos = { 800,-100 };
 	enemy[11].pos = { 1000,-100 };
@@ -132,6 +133,7 @@ void Enemy_Update(void)
 				if (player.camerastop == false)
 				{
 					Enemy_StateInit(enemycount, 1);
+					enemy[enemycount].ao = 1;
 					enemycount += 1;
 				}
 			}
@@ -165,6 +167,7 @@ void Enemy_Update(void)
 				if (player.camerastop == false)
 				{
 					Enemy_StateInit(enemycount, 1);
+					enemy[enemycount].ao = 1;
 					enemycount += 1;
 				}
 			}
@@ -281,6 +284,7 @@ void Enemy_Update(void)
 						if (player.camerastop == false)
 						{
 							Enemy_StateInit(enemycount, 1);
+							enemy[enemycount].ao = 1;
 							enemycount += 1;
 						}
 					}
@@ -353,11 +357,23 @@ void Enemy_Update(void)
 
 
 		//当たり判定用座標の更新
-		enemy[i].colcol.r = ENEMY_WIDTH * 0.8f;
-		enemy[i].colcol.s.p.x = enemy[i].pos.x;
-		enemy[i].colcol.s.p.y = enemy[i].pos.y - 20.0f;
-		enemy[i].colcol.s.v.x = 0.0f;
-		enemy[i].colcol.s.v.y = 50.0f;
+		if (enemy[i].ao == 0)
+		{
+			enemy[i].colcol.r = ENEMY_WIDTH * 0.8f;
+			enemy[i].colcol.s.p.x = enemy[i].pos.x;
+			enemy[i].colcol.s.p.y = enemy[i].pos.y - 20.0f;
+			enemy[i].colcol.s.v.x = 0.0f;
+			enemy[i].colcol.s.v.y = 50.0f;
+		}
+		else
+		{
+			enemy[i].colcol.r = ENEMY_WIDTH * 0.5f;
+			enemy[i].colcol.s.p.x = enemy[i].pos.x;
+			enemy[i].colcol.s.p.y = enemy[i].pos.y - 20.0f;
+			enemy[i].colcol.s.v.x = 0.0f;
+			enemy[i].colcol.s.v.y = 50.0f;
+		}
+
 
 		if (++enemy[i].animeFrame > ANIME_PATTERN_SKIPFRAME)
 		{
@@ -394,31 +410,63 @@ void Enemy_Draw(void)
 			continue;
 		}
 
-		Sprite_Draw(TEXTURE_INDEX_ZOMBIE,
-			enemy[i].pos.x+10.0f,
-			enemy[i].pos.y,
-			GetAnimTbl2(enemy[i].color, enemy[i].muki, enemy[i].animePattern).x * 256,
-			GetAnimTbl2(enemy[i].color, enemy[i].muki, enemy[i].animePattern).y * 256,
-			200,
-			300,
-			100,
-			150,
-			0.5f,
-			0.5f,
-			enemy[i].rot,0xff000000);
+		if (enemy[i].ao == 0)
+		{
+			Sprite_Draw(TEXTURE_INDEX_ZOMBIE,
+				enemy[i].pos.x + 10.0f,
+				enemy[i].pos.y,
+				GetAnimTbl2(enemy[i].color, enemy[i].muki, enemy[i].animePattern).x * 256,
+				GetAnimTbl2(enemy[i].color, enemy[i].muki, enemy[i].animePattern).y * 256,
+				200,
+				300,
+				100,
+				150,
+				0.5f,
+				0.5f,
+				enemy[i].rot, 0xff000000);
 
-		Sprite_Draw(TEXTURE_INDEX_ZOMBIE,
-			enemy[i].pos.x,
-			enemy[i].pos.y,
-			GetAnimTbl2(enemy[i].color, enemy[i].muki, enemy[i].animePattern).x * 256,
-			GetAnimTbl2(enemy[i].color, enemy[i].muki, enemy[i].animePattern).y * 256,
-			200,
-			300,
-			100,
-			150,
-			0.5f,
-			0.5f,
-			enemy[i].rot);
+			Sprite_Draw(TEXTURE_INDEX_ZOMBIE,
+				enemy[i].pos.x,
+				enemy[i].pos.y,
+				GetAnimTbl2(enemy[i].color, enemy[i].muki, enemy[i].animePattern).x * 256,
+				GetAnimTbl2(enemy[i].color, enemy[i].muki, enemy[i].animePattern).y * 256,
+				200,
+				300,
+				100,
+				150,
+				0.5f,
+				0.5f,
+				enemy[i].rot);
+		}
+		else
+		{
+			Sprite_Draw(TEXTURE_INDEX_AOZOMBIE,
+				enemy[i].pos.x + 10.0f,
+				enemy[i].pos.y,
+				GetAnimTbl3(enemy[i].color, enemy[i].muki, enemy[i].animePattern).x * 256,
+				GetAnimTbl3(enemy[i].color, enemy[i].muki, enemy[i].animePattern).y * 256,
+				240,
+				300,
+				120,
+				150,
+				0.3f,
+				0.3f,
+				enemy[i].rot, 0xff000000);
+
+			Sprite_Draw(TEXTURE_INDEX_AOZOMBIE,
+				enemy[i].pos.x,
+				enemy[i].pos.y,
+				GetAnimTbl3(enemy[i].color, enemy[i].muki, enemy[i].animePattern).x * 256,
+				GetAnimTbl3(enemy[i].color, enemy[i].muki, enemy[i].animePattern).y * 256,
+				240,
+				300,
+				120,
+				150,
+				0.3f,
+				0.3f,
+				enemy[i].rot);
+
+		}
 	}
 }
 
@@ -481,6 +529,7 @@ void Enemy_StateInit(int index, int hp)//エネミー出現情報
 	enemy[index].korobu = false;
 	enemy[index].spawn = false;
 	enemy[index].damagecol = true;
+	enemy[index].ao = 0;	//0...普通,1...青
 
 	destroy_pos_y[index] = /*enemy[index].pos.y*/450.0f;
 	enemy[index].enemystop = false;
@@ -636,9 +685,19 @@ void Enemy_StateChase(int index)
 		{
 			if (enemy[index].move == TRUE)
 			{
-				if (enemy[index].pos.y < 450.0f)
+				if (enemy[index].ao == 0)
 				{
-					enemy[index].pos.y += 10.0f;
+					if (enemy[index].pos.y < 450.0f)
+					{
+						enemy[index].pos.y += 10.0f;
+					}
+				}
+				else
+				{
+					if (enemy[index].pos.y < 470.0f)
+					{
+						enemy[index].pos.y += 10.0f;
+					}
 				}
 			}
 		}

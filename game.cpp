@@ -175,7 +175,7 @@ void Game_Draw(void)
 	Bullet_Draw();
 	Explosion_Draw();
 	Explosion_Draw2();
-	BossBullet_Draw();
+	//BossBullet_Draw();
 	//ライフスコア表示
 	if (!player.commbo == 0)
 	{
