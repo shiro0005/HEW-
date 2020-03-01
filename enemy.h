@@ -42,7 +42,7 @@ int			hp;
 }ENEMY_DATA;
 
 
-#define ENEMY_COUNT 41
+#define ENEMY_COUNT 131
 
 void Enemy_Initialize(void);
 void Enemy_Finalize(void);

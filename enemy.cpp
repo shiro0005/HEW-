@@ -63,12 +63,12 @@ void Enemy_Initialize(void)
 	enemy[0].pos = { 0,450 };
 	enemy[1].pos = { 1100,450 };
 	enemy[2].pos = { 1000,450 };
-	enemy[3].pos = { 1200,470 };
+	enemy[3].pos = { 1200,480 };
 	enemy[4].pos = { 200,-100 };
 	enemy[5].pos = { 0,450 };
 	enemy[6].pos = { 1000,450 };
-	enemy[7].pos = { 1200,470 };
-	enemy[8].pos = { 1600,470 };
+	enemy[7].pos = { 1200,480 };
+	enemy[8].pos = { 1600,480 };
 	enemy[9].pos = { 0,-100 };
 	enemy[10].pos = { 800,-100 };
 	enemy[11].pos = { 1000,-100 };
@@ -101,6 +101,96 @@ void Enemy_Initialize(void)
 	enemy[38].pos = { 1550,-100 };
 	enemy[39].pos = { 1600,-100 };
 	enemy[40].pos = { 1650,-100 };
+	enemy[41].pos = { 1700,-100 };
+	enemy[42].pos = { 1750,-100 };
+	enemy[43].pos = { 1800,-100 };
+	enemy[44].pos = { 1850,-100 };
+	enemy[45].pos = { 1900,-100 };
+	enemy[46].pos = { 1950,-100 };
+	enemy[47].pos = { 2000,-100 };
+	enemy[48].pos = { 2050,-100 };
+	enemy[49].pos = { 2100,-100 };
+	enemy[50].pos = { 2150,-100 };
+	enemy[51].pos = { 2200,-100 };
+	enemy[52].pos = { 2250,-100 };
+	enemy[53].pos = { 2300,-100 };
+	enemy[54].pos = { 2350,-100 };
+	enemy[55].pos = { 2400,-100 };
+	enemy[56].pos = { 2450,-100 };
+	enemy[57].pos = { 2500,-100 };
+	enemy[58].pos = { 2550,-100 };
+	enemy[59].pos = { 2600,-100 };
+	enemy[60].pos = { 2650,-100 };
+	enemy[61].pos = { 2700,-100 };
+	enemy[62].pos = { 2750,-100 };
+	enemy[63].pos = { 2800,-100 };
+	enemy[64].pos = { 2850,-100 };
+	enemy[65].pos = { 2900,-100 };
+	enemy[66].pos = { 2950,-100 };
+	enemy[67].pos = { 3000,-100 };
+	enemy[68].pos = { 3050,-100 };
+	enemy[69].pos = { 3100,-100 };
+	enemy[70].pos = { 3150,-100 };
+	enemy[71].pos = { 3200,-100 };
+	enemy[72].pos = { 3250,-100 };
+	enemy[73].pos = { 3300,-100 };
+	enemy[74].pos = { 3350,-100 };
+	enemy[75].pos = { 3400,-100 };
+	enemy[76].pos = { 3450,-100 };
+	enemy[77].pos = { 3500,-100 };
+	enemy[78].pos = { 3550,-100 };
+	enemy[79].pos = { 3600,-100 };
+	enemy[80].pos = { 3650,-100 };
+	enemy[81].pos = { 3700,-100 };
+	enemy[82].pos = { 3750,-100 };
+	enemy[83].pos = { 3800,-100 };
+	enemy[84].pos = { 3850,-100 };
+	enemy[85].pos = { 3900,-100 };
+	enemy[86].pos = { 3950,-100 };
+	enemy[87].pos = { 4000,-100 };
+	enemy[88].pos = { 4050,-100 };
+	enemy[89].pos = { 4100,-100 };
+	enemy[90].pos = { 4150,-100 };
+	enemy[91].pos = { 4200,-100 };
+	enemy[92].pos = { 4250,-100 };
+	enemy[93].pos = { 4300,-100 };
+	enemy[94].pos = { 4350,-100 };
+	enemy[95].pos = { 4400,-100 };
+	enemy[96].pos = { 4450,-100 };
+	enemy[97].pos = { 4500,-100 };
+	enemy[98].pos = { 4550,-100 };
+	enemy[99].pos = { 4600,-100 };
+	enemy[100].pos = { 4650,-100 };
+	enemy[101].pos = { 4700,-100 };
+	enemy[102].pos = { 4750,-100 };
+	enemy[103].pos = { 4800,-100 };
+	enemy[104].pos = { 4850,-100 };
+	enemy[105].pos = { 4900,-100 };
+	enemy[106].pos = { 4950,-100 };
+	enemy[107].pos = { 5000,-100 };
+	enemy[108].pos = { 5050,-100 };
+	enemy[109].pos = { 5100,-100 };
+	enemy[110].pos = { 5150,-100 };
+	enemy[111].pos = { 5200,-100 };
+	enemy[112].pos = { 5250,-100 };
+	enemy[113].pos = { 5300,-100 };
+	enemy[114].pos = { 5350,-100 };
+	enemy[115].pos = { 5400,-100 };
+	enemy[116].pos = { 5450,-100 };
+	enemy[117].pos = { 5500,-100 };
+	enemy[118].pos = { 5550,-100 };
+	enemy[119].pos = { 5600,-100 };
+	enemy[120].pos = { 5650,-100 };
+	enemy[121].pos = { 5700,-100 };
+	enemy[122].pos = { 5750,-100 };
+	enemy[123].pos = { 5800,-100 };
+	enemy[124].pos = { 5850,-100 };
+	enemy[125].pos = { 5900,-100 };
+	enemy[126].pos = { 5950,-100 };
+	enemy[127].pos = { 6000,-100 };
+	enemy[128].pos = { 6050,-100 };
+	enemy[129].pos = { 6100,-100 };
+	enemy[130].pos = { 6150,-100 };
 	dir.x = 0.0f;
 	destroy_dir = 0.0f;
 	enemycount = 3;
@@ -275,7 +365,7 @@ void Enemy_Update(void)
 	for (int i = 0; i < 10; i++)
 	{
 		if (enemycount > 30 && !enemy[30].enable) {
-			if (enemycount < 41)
+			if (enemycount < 131)
 			{
 				if (enemy[enemycount].enable == FALSE)
 				{
@@ -367,7 +457,7 @@ void Enemy_Update(void)
 		}
 		else
 		{
-			enemy[i].colcol.r = ENEMY_WIDTH * 0.5f;
+			enemy[i].colcol.r = ENEMY_WIDTH * 0.4f;
 			enemy[i].colcol.s.p.x = enemy[i].pos.x;
 			enemy[i].colcol.s.p.y = enemy[i].pos.y - 20.0f;
 			enemy[i].colcol.s.v.x = 0.0f;
@@ -466,6 +556,7 @@ void Enemy_Draw(void)
 				0.3f,
 				enemy[i].rot);
 
+			//colcheck(enemy[i].colcol);
 		}
 	}
 }
@@ -594,11 +685,24 @@ void Enemy_StateChase(int index)
 
 	enemy[index].color = 0;  //’Êíó‘Ô
 
-	if (pl_pos.x + 120.0f > enemy[index].pos.x&&pl_pos.x - 120.0f < enemy[index].pos.x)//UŒ‚€”õƒ‚[ƒVƒ‡ƒ“”»’è
+	if (enemy[index].ao == 0) {
+		if (pl_pos.x + 120.0f > enemy[index].pos.x&&pl_pos.x - 120.0f < enemy[index].pos.x)//UŒ‚€”õƒ‚[ƒVƒ‡ƒ“”»’è
+		{
+			if (enemy[index].spawn == true) {
+				if (enemy[index].pos.y >= 430.0f) {
+					enemy[index].attack = TRUE;
+				}
+			}
+		}
+	}
+	else
 	{
-		if (enemy[index].spawn == true) {
-			if (enemy[index].pos.y >= 430.0f) {
-				enemy[index].attack = TRUE;
+		if (pl_pos.x + 75.0f > enemy[index].pos.x&&pl_pos.x - 75.0f < enemy[index].pos.x)//UŒ‚€”õƒ‚[ƒVƒ‡ƒ“”»’è
+		{
+			if (enemy[index].spawn == true) {
+				if (enemy[index].pos.y >= 430.0f) {
+					enemy[index].attack = TRUE;
+				}
 			}
 		}
 	}
@@ -694,7 +798,7 @@ void Enemy_StateChase(int index)
 				}
 				else
 				{
-					if (enemy[index].pos.y < 470.0f)
+					if (enemy[index].pos.y < 480.0f)
 					{
 						enemy[index].pos.y += 10.0f;
 					}

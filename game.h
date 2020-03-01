@@ -9,5 +9,5 @@ void Game_AddScore(int score);
 void Game_AddKillCount(void);
 void Game_AddKillBossCount(void);
 int GetScore();
-
+bool GetGamend();
 //int Game_GetScore();

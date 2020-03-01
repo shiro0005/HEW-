@@ -43,6 +43,14 @@ void Result_Update(void)
 
 void Result_Draw(void)
 {
-	Sprite_Draw(TEXTURE_INDEX_RESULT, 0.0f, 0.0f);
-	Score_Draw(430, 180, 1.0f, 1.0f,g_Score, 7, true);
+	if (GetGamend())
+	{
+		Sprite_Draw(TEXTURE_INDEX_RESULT, 0.0f, 0.0f);
+		Score_Draw(430, 180, 1.0f, 1.0f, g_Score, 7, true);
+	}
+	else
+	{
+		Sprite_Draw(TEXTURE_INDEX_GAMEOVER, 0.0f, 0.0f);
+		Score_Draw(430, 180, 1.0f, 1.0f, g_Score, 7, true);
+	}
 }

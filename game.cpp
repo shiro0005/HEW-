@@ -37,6 +37,7 @@ static PLAYER player;
 static int g_Score = 0;// 点数
 static int g_KillCount = 0;
 static int g_Bosskill = 0;
+static bool gamend;
 
 static bool Game_Bossappear(void);
 
@@ -207,11 +208,15 @@ bool Game_Bossappear(void)
 {
 	if(player.fase==3)
 	{
-		if (player.kyori > 3500.0f)
+		if (player.kyori > 9000.0f)
 		{
 			ChengeCamerastop(true);
+			StopSound(SOUND_LABEL_GAME);
+			PlaySound(SOUND_LABEL_BOSS);
+
 			return true;
 		}
+
 	}
 
 	/*if (player.hitpoint <= 0)
@@ -225,13 +230,24 @@ bool Game_EndCheck(void)
 {
 	//ボス倒したら終了
 	if (g_Bosskill >= 1)
+	{
+		gamend = true;
+		
+		StopSound(SOUND_LABEL_BOSS);
+
 		return true;
+	}
 
 	//if(g_KillCount>=3)
 	//	return true;
 
 	if (player.hitpoint <= 0)
+	{
+		gamend = false;
+		StopSound(SOUND_LABEL_GAME);
+		StopSound(SOUND_LABEL_BOSS);
 		return true;
+	}
 
 	return false;
 }
@@ -293,4 +309,9 @@ void FaseCheck()
 			}
 		}
 	}
+}
+
+bool GetGamend()
+{
+	return gamend;
 }

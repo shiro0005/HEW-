@@ -559,6 +559,7 @@ void Collision_Enemy_hand_vs_Player(void)
 			{
 				// “–‚½‚Á‚Ä‚é
 				//Player_AddDamage(1);
+				PlaySound(SOUND_LABEL_SE_DAMAGE);
 				player.hitpoint -= 1;
 				player.color = 0xffff0000;
 				if (player.pos.x < GetHundPos(i)) {
@@ -589,6 +590,7 @@ void Collision_Boss_hand_vs_Player(void)
 			{
 				// “–‚½‚Á‚Ä‚é
 				//Player_AddDamage(1);
+				PlaySound(SOUND_LABEL_SE_DAMAGE);
 				player.hitpoint -= 1;
 				player.color = 0xffff0000;
 				//Explosion_Create5(player.pos.x, player.pos.y);
@@ -845,6 +847,7 @@ void Collision_Bosslaser_vs_Player(void)
 			{
 				Laserhit(true);
 				// “–‚½‚Á‚Ä‚é
+				PlaySound(SOUND_LABEL_SE_DAMAGE);
 				player.hitpoint -= 3;
 				player.color = 0xffff0000;
 			}

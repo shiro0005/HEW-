@@ -4,6 +4,7 @@
 #include "collision.h"
 #include "bosslaser.h"
 #include "2D.h"
+#include "sound.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -105,7 +106,10 @@ void BossLaser_Update(void)
 		{
 
 			laserhint_countdown[i]++;
-
+			if (laserhint_countdown[i] == 200)
+			{
+				PlaySound(SOUND_LABEL_SE_KAMINARI);
+			}
 			if (laserhint_countdown[i] >= 200)
 			{
 				g_BossLaser[i].frame++;

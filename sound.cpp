@@ -50,6 +50,10 @@ SOUNDPARAM g_aParam[SOUND_LABEL_MAX] =
 	{(char *)"asset/BGM/title.wav", -1},		// タイトル
 	{(char *)"asset/BGM/game.wav", -1},		// ゲーム
 	{(char *)"asset/BGM/result.wav", -1},		// リザルト
+	{(char *)"asset/SE/KAMINARI02.wav", 0},			// 雷
+	{(char *)"asset/SE/damage.wav", 0},			// 雷
+	{(char *)"asset/SE/laserdamage.wav", 0},			// 雷
+    {(char *)"asset/BGM/boss.wav", -1},		// bossバトル
 };
 
 //=============================================================================
