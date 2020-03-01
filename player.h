@@ -33,9 +33,10 @@ typedef struct
 	int			allAT;			//○○ATの代わり
 	int			comboflame;		//combocommanduketukejikan
 	D3DXVECTOR2		size;		//テクスチャの大きさ
-	float		kyori;	//playerの進んだ距離
+	float		kyori;			//playerの進んだ距離
 	int			fase;
-	D3DCOLOR    color;//spriteの色
+	D3DCOLOR    color;          //spriteの色
+	bool        dead;			//playerの死
 }PLAYER;
 
 typedef struct
@@ -57,8 +58,8 @@ PLAYER GetPlayer();
 void PlayerInfoMatch(PLAYER info);
 void ChengeCamerastop(bool f);
 void FaseCount(int f);
-float Getkyori();
-int GetFase();
+//float Getkyori();
+//int GetFase();
 //const Capsule2D* Player_GetCollision();
 //const Capsule2D* Player_GetCollisionFR();
 //const Capsule2D* Player_GetCollisionFL();

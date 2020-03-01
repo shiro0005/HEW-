@@ -12,6 +12,7 @@
 #include "game.h"
 #include "collisioncheck.h"
 #include "explosion2.h"
+#include "sound.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -99,7 +100,7 @@ void Boss_Update(void)
 			boss[i].state = BOSS_STATE_DEAD;
 		}
 
-		if (boss[i].move == FALSE||boss[i].state==BOSS_STATE_DEAD)
+		if (boss[i].move == FALSE || boss[i].state == BOSS_STATE_DEAD)
 		{
 			if (!boss[i].enable) {
 				continue;
@@ -135,7 +136,7 @@ void Boss_Update(void)
 
 	//当たり判定用座標の更新
 	boss[0].colcol.r = BOSS_WIDTH * 1.0f;
-	boss[0].colcol.s.p.x = boss[0].pos.x+50.0f;
+	boss[0].colcol.s.p.x = boss[0].pos.x + 50.0f;
 	boss[0].colcol.s.p.y = boss[0].pos.y - 150.0f;
 	boss[0].colcol.s.v.x = 0.0f;
 	boss[0].colcol.s.v.y = 300.0f;
@@ -164,18 +165,18 @@ void Boss_Update(void)
 	case BOSS_STATE_CHASE:
 		Boss_StateChase(0);
 		break;
-	/*case BOSS_STATE_LASER:
-		Boss_StateLaser(0);
-		break;
-		case ENEMY_STATE_SHOT:
-			Enemy_StateShot(i);
+		/*case BOSS_STATE_LASER:
+			Boss_StateLaser(0);
 			break;
-		 case BOSS_STATE_RETURN:
-			Boss_StateReturn(0);
-			break;
-		case ENEMY_STATE_COOLDOWN:
-			Enemy_StateCooldown(i);
-			break;*/
+			case ENEMY_STATE_SHOT:
+				Enemy_StateShot(i);
+				break;
+			 case BOSS_STATE_RETURN:
+				Boss_StateReturn(0);
+				break;
+			case ENEMY_STATE_COOLDOWN:
+				Enemy_StateCooldown(i);
+				break;*/
 
 	case BOSS_STATE_DEAD:
 		Boss_Destroy(0);
@@ -197,7 +198,7 @@ void Boss_Draw(void)
 		//colcheck(boss[i].colcol);
 
 		Sprite_Draw(TEXTURE_INDEX_ZOMBIE,
-			boss[i].pos.x+20.0f,
+			boss[i].pos.x + 20.0f,
 			boss[i].pos.y,
 			GetAnimTbl2(boss[i].color, boss[i].muki, boss[i].animePattern).x * 256,
 			GetAnimTbl2(boss[i].color, boss[i].muki, boss[i].animePattern).y * 256,
@@ -207,8 +208,8 @@ void Boss_Draw(void)
 			150,
 			2.5f,
 			2.5f,
-			boss[i].rot,0xff000000);
-		
+			boss[i].rot, 0xff000000);
+
 		Sprite_Draw(TEXTURE_INDEX_ZOMBIE,
 			boss[i].pos.x,
 			boss[i].pos.y,
@@ -229,6 +230,9 @@ void Boss_Destroy(int index)
 {
 	boss[index].move = FALSE;
 	Frame++;
+	if (Frame == 1) {
+		StopSound(SOUND_LABEL_BOSS);
+	}
 	/*if (destroy_boss_dir == 1)
 	{
 		boss[index].dir_destroy.x = 2.0f;
@@ -250,8 +254,13 @@ void Boss_Destroy(int index)
 		boss[index].pos.y += 1;
 	}
 
-	if (Frame>200) {
+	if (Frame > 200) {
 		boss[index].pos.y += 20;
+	}
+
+	Explosion_Create0(boss[index].pos.x + rand() % 200 - rand() % 200, boss[index].pos.y + rand() % 200 - rand() % 200);
+	if (Frame % 20==0) {
+		PlaySound(SOUND_LABEL_SE_EXPLOSION2);
 	}
 	D3DXVec2Normalize(&boss[index].dir_destroy, &boss[index].dir_destroy);
 }
@@ -474,10 +483,10 @@ void Boss_StateChase(int index)
 	if (player.pos.x + 250.0f > boss[index].pos.x&&player.pos.x - 250.0f < boss[index].pos.x)//攻撃準備モーション判定
 	{
 		boss[index].attack = TRUE;
-	
+
 	}
 
-	
+
 	if (boss[index].attack == TRUE)//攻撃準備
 	{
 		//フレームを進める
@@ -541,7 +550,7 @@ void Boss_StateChase(int index)
 			}
 		}
 
-	
+
 	}
 
 	//ボス移動できる
@@ -661,7 +670,7 @@ void Boss_Attack(int index)
 		break;
 	}
 
-	if (bossatk_countdown >= 100)	
+	if (bossatk_countdown >= 100)
 	{
 		Explosion_Create6(boss[index].pos.x, boss[index].pos.y, 0.0f);//destroy
 		boss[index].bosslasermodestop = TRUE;
@@ -672,8 +681,8 @@ void Boss_Attack(int index)
 
 		bossatk_countdown = 0;
 
-	//BossLaser_Create(boss[index].muki,( boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);
-		
+		//BossLaser_Create(boss[index].muki,( boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);
+
 		for (int i = 0; i < LASERHINT_MAX; i++) {
 			switch (rand() % 5)
 			{
@@ -701,23 +710,23 @@ void Boss_Attack(int index)
 				break;
 			}
 		}
-		
-	/*BossThunder_IscooolTrue(index);
 
-	BossThunder_Create(boss[index].muki, (boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);
+		/*BossThunder_IscooolTrue(index);
 
-	BossFlame_IscooolTrue(index);
+		BossThunder_Create(boss[index].muki, (boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);
 
-	BossFlame_Create(boss[index].muki, (boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);*/
+		BossFlame_IscooolTrue(index);
+
+		BossFlame_Create(boss[index].muki, (boss[index].pos.x - (frand() * SCREEN_WIDTH))/3, boss[index].pos.y - 300.0f, boss_dir);*/
 	}
 	else if (bossatk_countdown >= 0 && bossatk_countdown < 100) {
 		Bullet_IscoolTrue(index);
 		BossBullet_Create(boss[index].muki, boss[index].pos.x, boss[index].pos.y, boss_dir);
 		dir = D3DXVECTOR2(0.0f, 0.0f);
-		
+
 	}
-	
-	
+
+
 	//Bullet_IscoolTrue(index);
 	//BossBullet_Create(boss[index].muki, hand.x, boss[index].pos.y, boss_dir);
 

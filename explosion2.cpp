@@ -60,6 +60,14 @@
 #define APPEAR_PATTERN_H_MAX (4)
 
 
+//explosion
+#define EXPLOSION0_MAX    (256)
+#define EXPLOSION0_WIDTH  (32)
+#define EXPLOSION0_HEIGHT (32)
+#define EXPLOSION0_PATTERN_FRAME (1)
+#define EXPLOSION0_PATTERN_MAX   (16)
+#define EXPLOSION0_PATTERN_H_MAX (4)
+
 typedef struct Explosion_tag//impact
 {
 	float x, y;			//座標
@@ -122,11 +130,21 @@ typedef struct App_tag1//場外
 	float rot;
 } App;
 
+
+typedef struct Explosion_tag0//impact
+{
+	float x, y;			//座標
+	bool enable;		//
+	int create_frame;
+	int pattern;
+} Explosion0;
+
 static Cont       g_controller[EXPLOSION_MAX];
 static Explosion g_Explosions[EXPLOSION_MAX];
 static Explosion2 g_Explosions2[EXPLOSION2_MAX];
 static Explosion3 g_Explosions3[EXPLOSION3_MAX];
 static Explosion4 g_Explosions4[EXPLOSION4_MAX];
+static Explosion0 g_Explosions0[EXPLOSION0_MAX];
 
 static int g_ExplosionFrameCount = 0;
 static PLAYER player;
@@ -158,6 +176,10 @@ void Explosion_Initialize2(void)
 
 	for (int i = 0; i < APPEAR_MAX; i++) {
 		g_Explosions6[i].enable = false;
+	}
+
+	for (int i = 0; i < EXPLOSION0_MAX; i++) {
+		g_Explosions0[i].enable = false;
 	}
 }
 
@@ -264,6 +286,23 @@ void Explosion_Update2(void)
 			}
 		}
 	}
+
+	for (int i = 0; i < EXPLOSION0_MAX; i++) {
+
+		if (g_Explosions0[i].enable) {
+
+			int age = g_ExplosionFrameCount - g_Explosions0[i].create_frame;
+
+			g_Explosions0[i].pattern = age / EXPLOSION0_PATTERN_FRAME;
+
+			//最後のパターンが表示されたら終了する処理
+			if (g_Explosions0[i].pattern >= EXPLOSION0_PATTERN_MAX) {
+				g_Explosions0[i].enable = false;
+			}
+		}
+
+	}
+
 	g_ExplosionFrameCount++;
 }
 
@@ -434,6 +473,31 @@ void Explosion_Draw2(void)
 			g_Explosions6[i].rot);
 	}
 
+
+	for (int i = 0; i < EXPLOSION0_MAX; i++) {
+
+		if (!g_Explosions0[i].enable) {
+			continue;
+		}
+
+		// 現在表示するべきパターン番号から切り取り座標を算出する
+		int tx = EXPLOSION0_WIDTH * (g_Explosions0[i].pattern % EXPLOSION0_PATTERN_H_MAX);
+		int ty = EXPLOSION0_HEIGHT * (g_Explosions0[i].pattern / EXPLOSION0_PATTERN_H_MAX);
+
+		Sprite_Draw(TEXTURE_INDEX_EXPLOSION,
+			g_Explosions0[i].x,
+			g_Explosions0[i].y,
+			tx,
+			ty,
+			EXPLOSION0_WIDTH,
+			EXPLOSION0_HEIGHT,
+			EXPLOSION0_WIDTH / 2,
+			EXPLOSION0_HEIGHT / 2,
+			3.0f,
+			3.0f,
+			0);
+	}
+
 }
 
 void Explosion_Create2(float x, float y)
@@ -573,3 +637,22 @@ void Explosion_Create7(float x, float y, float rot)
 		break;
 	}
 }
+
+void Explosion_Create0(float x, float y)
+{
+	for (int i = 0; i < EXPLOSION0_MAX; i++) {
+
+		if (g_Explosions0[i].enable) {
+			continue;
+		}
+
+		g_Explosions0[i].x = x;
+		g_Explosions0[i].y = y;
+		g_Explosions0[i].create_frame = g_ExplosionFrameCount;
+		g_Explosions0[i].pattern = 0;
+		g_Explosions0[i].enable = true;
+
+		break;
+	}
+}
+

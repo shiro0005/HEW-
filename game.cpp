@@ -233,7 +233,7 @@ bool Game_EndCheck(void)
 	{
 		gamend = true;
 		
-		StopSound(SOUND_LABEL_BOSS);
+		
 
 		return true;
 	}
@@ -241,7 +241,7 @@ bool Game_EndCheck(void)
 	//if(g_KillCount>=3)
 	//	return true;
 
-	if (player.hitpoint <= 0)
+	if (player.dead)
 	{
 		gamend = false;
 		StopSound(SOUND_LABEL_GAME);
