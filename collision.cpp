@@ -347,13 +347,13 @@ void Collision_Player_vs_Enemy(void)
 
 							//se
 							if (player.pos.x >= enemy.pos.x) {//ìGÇ™ç∂
-								Explosion_Create(enemy.pos.x + 50.0f, enemy.pos.y, 1.75f);
-									PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+								Explosion_Create(enemy.pos.x + 100.0f, enemy.pos.y, 1.75f);
+									PlaySound(SOUND_LABEL_SE_SHOT);
 							}
 							else
 							{
-								Explosion_Create(enemy.pos.x - 50.0f, enemy.pos.y, -1.75f);
-									PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+								Explosion_Create(enemy.pos.x - 100.0f, enemy.pos.y, -1.75f);
+									PlaySound(SOUND_LABEL_SE_SHOT);
 							}
 						}
 					}
@@ -380,13 +380,13 @@ void Collision_Player_vs_Enemy(void)
 							//se
 
 							if (player.pos.x >= enemy.pos.x) {//ìGÇ™ç∂
-								Explosion_Create(enemy.pos.x + 50.0f, enemy.pos.y, 1.75f);
-									PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+								Explosion_Create(enemy.pos.x + 100.0f, enemy.pos.y, 1.75f);
+									PlaySound(SOUND_LABEL_SE_SHOT);
 							}
 							else
 							{
-								Explosion_Create(enemy.pos.x - 50.0f, enemy.pos.y, -1.75f);
-									PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+								Explosion_Create(enemy.pos.x - 100.0f, enemy.pos.y, -1.75f);
+									PlaySound(SOUND_LABEL_SE_SHOT);
 							}
 
 
@@ -664,12 +664,12 @@ void Collision_Player_vs_Boss(void)
 
 							//se
 							if (player.pos.x >= boss.pos.x) {//ìGÇ™ç∂
-								Explosion_Create(boss.pos.x + 50.0f, boss.pos.y, 1.75f);
+								Explosion_Create(boss.pos.x + 100.0f, boss.pos.y, 1.75f);
 								PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
 							}
 							else
 							{
-								Explosion_Create(boss.pos.x - 50.0f, boss.pos.y, -1.75f);
+								Explosion_Create(boss.pos.x - 100.0f, boss.pos.y, -1.75f);
 								PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
 							}
 						}
@@ -696,12 +696,12 @@ void Collision_Player_vs_Boss(void)
 							//se
 
 							if (player.pos.x >= enemy.pos.x) {//ìGÇ™ç∂
-								Explosion_Create(boss.pos.x + 50.0f, boss.pos.y, 1.75f);
+								Explosion_Create(boss.pos.x + 100.0f, boss.pos.y, 1.75f);
 								PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
 							}
 							else
 							{
-								Explosion_Create(boss.pos.x - 50.0f, boss.pos.y, -1.75f);
+								Explosion_Create(boss.pos.x - 100.0f, boss.pos.y, -1.75f);
 								PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
 							}
 

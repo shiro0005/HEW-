@@ -73,8 +73,8 @@ void Explosion_Draw(void)
 			EXPLOSION_HEIGHT,
 			EXPLOSION_WIDTH / 2,
 			EXPLOSION_HEIGHT / 2,
-			2.0f,
-			2.0f,
+			4.0f,
+			4.0f,
 			g_Explosions[i].rot);
 	}
 }
