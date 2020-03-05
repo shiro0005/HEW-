@@ -324,6 +324,21 @@ void Explosion_Update2(void)
 
 	}
 
+	for (int i = 0; i < EXPLOSIONDOWN_MAX; i++) {
+
+		if (g_ExplosionsDown[i].enable) {
+
+			int age = g_ExplosionFrameCount - g_ExplosionsDown[i].create_frame;
+
+			g_ExplosionsDown[i].pattern = age / EXPLOSIONDOWN_PATTERN_FRAME;
+
+			//最後のパターンが表示されたら終了する処理
+			if (g_ExplosionsDown[i].pattern >= EXPLOSIONDOWN_PATTERN_MAX) {
+				g_ExplosionsDown[i].enable = false;
+			}
+		}
+
+	}
 	g_ExplosionFrameCount++;
 }
 
@@ -538,8 +553,8 @@ void Explosion_Draw2(void)
 			EXPLOSIONDOWN_HEIGHT,
 			EXPLOSIONDOWN_WIDTH / 2,
 			EXPLOSIONDOWN_HEIGHT / 2,
-			3.0f,
-			3.0f,
+			1.0f,
+			1.0f,
 			0);
 	}
 
