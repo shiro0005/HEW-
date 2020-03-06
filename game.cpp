@@ -208,6 +208,11 @@ bool Game_Bossappear(void)
 {
 	if(player.fase==3)
 	{
+
+		if (player.kyori > 5000.0f) {
+			StopSound(SOUND_LABEL_GAME);
+		}
+
 		if (player.kyori > 9000.0f)
 		{
 			ChengeCamerastop(true);
