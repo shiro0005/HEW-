@@ -7,6 +7,7 @@
 #include "texture.h"
 #include "sprite.h"
 #include "collision.h"
+#include "sound.h"
 #include <time.h>
 
 #define _USE_MATH_DEFINES
@@ -43,6 +44,7 @@ typedef struct Vertex2D_tag
 ------------------------------------------------------------------------------*/
 static HWND g_hWnd;                           // ウィンドウハンドル
 
+int g_fpsCount;
 
 
 /*------------------------------------------------------------------------------
@@ -141,10 +143,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			DispatchMessage(&msg);
 		}
 		else {
-			// ゲームの更新
-			Update();
-			// ゲームの描画
-			Draw();
+			g_fpsCount++;
+			if (g_fpsCount % 60 == 0)
+			{
+				// ゲームの更新
+				Update();
+				// ゲームの描画
+				Draw();
+				g_fpsCount = 0;
+			}
 		}
 	}
 
@@ -201,10 +208,14 @@ bool Initialize(HINSTANCE hInst)
 	//全テクスチャファイルのロード
 	Texture_Load();
 
+	InitSound(GetHWND());
+
 	Fade_Initialize();
 	Scene_Initialize(SCENE_INDEX_TITLE);
 	Collision_Initialize();
-	
+
+	g_fpsCount = 0;		//fpsカウントを初期化
+
 	return true;
 }
 
@@ -221,6 +232,8 @@ void Finalize(void)
 
 	// ゲームの終了処理(Direct3Dの終了処理)
 	D3D_Finalize();
+
+	UninitSound();
 }
 
 // ゲームの更新関数

@@ -1,7 +1,7 @@
 #include "number.h"
 
 
-void Score_Draw(float x, float y, int score, int fig, bool bZero)
+void Score_Draw(float x, float y, float sx, float sy, int score, int fig, bool bZero)
 {
 	// カンスト用の最大数値を作る
 	int count_stop_score = 1;
@@ -21,7 +21,7 @@ void Score_Draw(float x, float y, int score, int fig, bool bZero)
 			int n = score % 10;
 			score /= 10;
 
-			Number_Draw(x + NUMBER_WIDTH * (fig - (i + 1)), y, n);
+			Number_Draw(x + NUMBER_WIDTH* (fig - (i + 1)), y, n,sx,sy);
 		}
 //	}
 }

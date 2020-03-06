@@ -35,9 +35,26 @@ SOUNDPARAM g_aParam[SOUND_LABEL_MAX] =
 	{(char *)"asset/BGM/bgm000.wav", -1},		// BGM0
 	{(char *)"asset/BGM/bgm001.wav", -1},		// BGM1
 	{(char *)"asset/BGM/bgm002.wav", -1},		// BGM2
-	{(char *)"asset/SE/shot000.wav", 0},			// 弾発射音
+	{(char *)"asset/SE/shot000.wav", 0},		// 弾発射音
 	{(char *)"asset/SE/hit000.wav", 0},			// ヒット音
 	{(char *)"asset/SE/explosion000.wav", 0},	// 爆発音
+	{(char *)"asset/SE/short_punch2.wav", 0},	// 爆発音
+	{(char *)"asset/SE/bakuhatu.wav", 0},	    // 爆発音
+	{(char *)"asset/SE/↑.wav", 0},				//↑
+	{(char *)"asset/SE/スライディング.wav", 0},	//スライディング
+	{(char *)"asset/SE/ボタン.wav", 0},			//ボタン　rizarutokara
+	{(char *)"asset/SE/下.wav", 0},				//下 kougeki
+	{(char *)"asset/SE/死.wav", 0},				//死 teki
+	{(char *)"asset/SE/初動.wav", 0},			//初動 kougeki
+	{(char *)"asset/SE/笛.wav", 0},				//笛 titlekara
+	{(char *)"asset/BGM/title.wav", -1},		// タイトル
+	{(char *)"asset/BGM/game.wav", -1},			// ゲーム
+	{(char *)"asset/BGM/result.wav", -1},		// リザルト
+	{(char *)"asset/SE/KAMINARI02.wav", 0},		// 雷
+	{(char *)"asset/SE/damage.wav", 0},			// 雷
+	{(char *)"asset/SE/laserdamage.wav", 0},	// 雷
+    {(char *)"asset/BGM/boss.wav", -1},			// bossバトル
+	{(char *)"asset/SE/h0s40-fr3zu.wav", 0},			//死 player
 };
 
 //=============================================================================

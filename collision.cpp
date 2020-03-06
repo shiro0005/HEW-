@@ -1,25 +1,29 @@
+
 #include "game.h"
 #include "collision.h"
 #include "player.h"
 #include "enemy.h"
 #include "boss.h"
-#include "bullet.h"
 #include "enemy_hand.h"
-#include "enemybullet.h"
-#include "enemylaser.h"
 #include "bossbullet.h"
 #include "bosslaser.h"
+#include "bossflame.h"
+#include "bossthunder.h"
 #include "explosion.h"
+#include "explosion2.h"
 #include "scene.h"
 #include "tilemap.h"
 #include "2D.h"
 #include <d3dx9.h>
 #include "stage.h"
 #include "game.h"
+#include "sound.h"
 
 //グローバル変数
 static PLAYER player;
 static ENEMY_DATA enemy;
+static BOSS_DATA boss;
+
 //プロトタイプ宣言
 bool HitCupsule(const CIRCLE* p_circle, const CUPSULE* p_cupsule);
 bool HitCupsule(const Capsule2D* c1, const Capsule2D* c2);
@@ -27,16 +31,14 @@ bool HitCupsule(const Capsule2D c1, const Capsule2D* c2);
 bool HitCupsule(const Capsule2D* c1, const Capsule2D c2);
 void Collision_Player_vs_Enemy(void);
 void Collision_Enemy_hand_vs_Player(void);
+void Collision_Bosslaser_vs_Player(void);
+void Collision_Bossflame_vs_Player(void);
+void Collision_Bossthunder_vs_Player(void);
+void Collision_Boss_hand_vs_Player(void);
 static bool HitCircle(const CIRCLE* pCircle_a, const CIRCLE* pCircle_b);
 void Collision_Player_vs_Enemy(void);
-//void Collision_Bullet_vs_Enemy(void);
-//void Collision_Player_vs_EnemyBullet(void);
-//void Collision_Player_vs_EnemyLaser(void);
-//void Collision_Player_vs_Boss(void);
-//void Collision_Bullet_vs_Boss(void);
-//void Collision_Player_vs_BossBullet(void);
-//void Collision_Player_vs_BossLaser(void);
-//
+void Collision_Player_vs_Boss(void);
+
 
 
 
@@ -60,29 +62,6 @@ bool HitCircle(const CIRCLE* p_circle_a, const CIRCLE* p_circle_b)
 	//ヒットしていなかった
 	return false;
 }
-
-/*
-bool HitCircle(const CIRCLE* p_circle_a, const CIRCLE* p_circle_b)
-{
-//引数からベクトル型の変数を作る
-D3DXVECTOR2 dst1(p_circle_a->cx, p_circle_a->cy);
-D3DXVECTOR2 dst2(p_circle_b->cx, p_circle_b->cy);
-//二点間のベクトルを作る
-D3DXVECTOR2 distance = dst2 - dst1;
-//作ったベクトルの長さを求める
-float length = D3DXVec2LengthSq(&distance);
-//お互いの半径を足した値を求める
-float size = (p_circle_a->r + p_circle_b->r) * (p_circle_a->r + p_circle_b->r);
-
-//ベクトルの長さとお互いの半径を足した値を比較する
-//→ベクトルの長さの方が小さければヒットしている！
-if (length < (p_circle_a->r + p_circle_b->r)){
-return true;
-}
-//ヒットしていなかった
-return false;
-}
-*/
 
 bool HitCupsule(const CIRCLE* p_circle, const CUPSULE* p_cupsule)
 {
@@ -156,7 +135,7 @@ float calcLineLineDist2D(const Line2D &l1, const Line2D &l2, Point2D &p1, Point2
 	float DV1V1 = l1.v.lengthSq();
 	float DV2V2 = l2.v.lengthSq();
 	Vec2 P21P11 = l1.p - l2.p;
-	t1 = (DV1V2 * l2.v.dot(P21P11) - DV2V2 * l1.v.dot(P21P11)) / (DV1V1 * DV2V2 - DV1V2 * DV1V2);
+	t1 = (DV1V2 * l2.v.dot(P21P11) - DV2V2 * l1.v.dot(P21P11)) / ((DV1V1 * DV2V2 - DV1V2 * DV1V2) + 1);
 	p1 = l1.getPoint(t1);
 	t2 = l2.v.dot(p1 - l2.p) / DV2V2;
 	p2 = l2.getPoint(t2);
@@ -280,40 +259,6 @@ float calcSegmentSegmentDist2D(const Segment2D &s1, const Segment2D &s2,
 	clamp01(t1);
 	p1 = s1.getPoint(t1);
 	return (p2 - p1).length();
-
-
-	////カプセルとカプセルの位置
-	//D3DXVECTOR2 cup1_pos = D3DXVECTOR2(p_cupsule1->x, p_cupsule1->y);
-	//D3DXVECTOR2 cup1_end = D3DXVECTOR2(p_cupsule1->ex, p_cupsule1->ey);
-	//D3DXVECTOR2 cup2_pos = D3DXVECTOR2(p_cupsule2->x, p_cupsule2->y);
-	//D3DXVECTOR2 cup2_end = D3DXVECTOR2(p_cupsule2->ex, p_cupsule2->ey);
-	//D3DXVECTOR2 distance = cup1_pos - cup2_pos;
-	//float t = 0.0f;
-	////交点を求める
-	//t = (cup2_end.x * distance.x + cup2_end.y * distance.y) /
-	//	(cup2_end.x * cup2_end.x  + cup2_end.y * cup2_end.y);
-	//
-	//if (t < 0.0f)
-	//	t = 0.0f;
-	//if (t > 1.0f)
-	//	t = 1.0f;
-	//D3DXVECTOR2 pos_cross1;
-	//D3DXVECTOR2 pos_cross2;
-	//pos_cross1.x = (cup1_end.x * t) + cup1_pos.x;
-	//pos_cross1.y = (cup1_end.y * t) + cup1_pos.y;
-	//pos_cross2.x = (cup2_end.x * t) + cup2_pos.x;
-	//pos_cross2.y = (cup2_end.y * t) + cup2_pos.y;
-	////交点までの長さとお互いの半径を足したものの大きさを比べる
-	//float cross_len = (pos_cross2.x - pos_cross1.x) * (pos_cross2.x - pos_cross1.x) +
- //               	  (pos_cross2.y - pos_cross1.y) * (pos_cross2.y - pos_cross1.y);
-	//float size = (p_cupsule1->r + p_cupsule2->r);
-	////→ベクトルの長さの方が小さければヒットしている！
-	//if (cross_len < size * size)
-	//{
-	//	return true;
-	//}
-	////ヒットしていなかった
-	//return false;
 }
 
 bool HitCupsule(const Capsule2D* c1, const Capsule2D* c2) {
@@ -347,11 +292,14 @@ void Collision_Update(void)
 	//player構造体の情報を取得
 	player = GetPlayer();
 
-	
+
 	Collision_Player_vs_Enemy();
 	Collision_Enemy_hand_vs_Player();
-	//Collision_Player_vs_Boss();
-	//Collision_Player_vs_BossBullet();
+	Collision_Player_vs_Boss();
+	Collision_Bosslaser_vs_Player();
+	Collision_Bossflame_vs_Player();
+	Collision_Bossthunder_vs_Player();
+	Collision_Boss_hand_vs_Player();
 	/*Collision_Bullet_vs_Enemy();
 	Collision_Player_vs_EnemyBullet();
 	Collision_Player_vs_EnemyLaser();
@@ -366,37 +314,215 @@ void Collision_Player_vs_Enemy(void)
 {
 	for (int i = 0; i < ENEMY_COUNT; i++) {
 		enemy = GetEnemy(i);
-
 		// エネミーは有効か？
 		if (!Enemy_IsEnable(i)) {
 			continue;
 		}
+		
+		if (!enemy.spawn) {
+			continue;
+		}
 
-		if (player.firstAT||player.frontAT) {
-			// プレイヤーのコリジョンとエネミーのコリジョン
-			if (HitCupsule(Enemy_GetCollision(i), player.foot[0]))
+		if (!player.com == 0) {
+			switch (player.com)
 			{
-				if (player.attackcol) {
-					player.commbo = 1;
-					Game_AddScore(200);
-					// 当たってる
-					Enemy_NockBack(i);
-					Enemy_AddDamage(1, i);
-					//当たり判定を消す
-					player.attackcol = false;
+			case 1:
+				if (player.muki == 1) {
+					if (HitCupsule(Enemy_GetCollision(i), player.first[0]))//初動
+					{
+						if (enemy.damagecol == true)
+						{
+							player.karacombo = false;
+							player.commbo += 1;
+							player.comboflame = 0;
+							Game_AddScore(200 + (player.commbo * 20));
+							// 当たってる
+							enemy.hp -= 1;
+							Enemy_AddDamage(i);
+							enemy.damagecol = false;
+							enemy.rot = 0.0f;
+
+							player.leftstop = false;
+							player.stop = false;
+
+							//se
+							if (player.pos.x >= enemy.pos.x) {//敵が左
+								Explosion_CreateDown(enemy.pos.x + 100.0f, enemy.pos.y);
+									PlaySound(SOUND_LABEL_SE_SHOT);
+							}
+							else
+							{
+								Explosion_CreateDown(enemy.pos.x - 100.0f, enemy.pos.y);
+									PlaySound(SOUND_LABEL_SE_SHOT);
+							}
+						}
+					}
 				}
-			}
-			if (HitCupsule(Enemy_GetCollision(i), player.foot[1]))
-			{
-				if (player.attackcol) {
-					player.commbo = 1;
-					Game_AddScore(200);
-					// 当たってる
-					Enemy_NockBack(i);
-					Enemy_AddDamage(1, i);
-					//当たり判定を消す
-					player.attackcol = false;
+				else if (player.muki == 0) {
+					if (HitCupsule(Enemy_GetCollision(i), player.first[1]))//初動
+					{
+						if (enemy.damagecol == true)
+						{
+
+							player.karacombo = false;
+							player.commbo += 1;
+							player.comboflame = 0;
+							Game_AddScore(200 + (player.commbo * 20));
+							// 当たってる
+							enemy.hp -= 1;
+							Enemy_AddDamage(i);
+							enemy.damagecol = false;
+							enemy.rot = 0.0f;
+
+							player.leftstop = false;
+							player.stop = false;
+
+							//se
+
+							if (player.pos.x >= enemy.pos.x) {//敵が左
+								Explosion_CreateDown(enemy.pos.x + 100.0f, enemy.pos.y);
+									PlaySound(SOUND_LABEL_SE_SHOT);
+							}
+							else
+							{
+								Explosion_CreateDown(enemy.pos.x - 100.0f, enemy.pos.y);
+									PlaySound(SOUND_LABEL_SE_SHOT);
+							}
+
+
+
+						}
+					}
 				}
+				break;
+
+			case 2:
+
+				if (HitCupsule(Enemy_GetCollision(i), player.UpCol))//上攻撃
+				{
+					if (enemy.damagecol == true)
+					{
+						player.karacombo = false;
+						player.commbo += 1;
+						player.comboflame = 0;
+						Game_AddScore(200 + (player.commbo * 20));
+						// 当たってる
+						enemy.hp -= 1;
+						Enemy_AddDamage(i);
+						enemy.damagecol = false;
+						enemy.korobu = true;
+
+						player.leftstop = false;
+						player.stop = false;
+
+						//se
+						enemy.nock = TRUE;
+						if (enemy.hp >= 1) {
+							enemy.t = 0;
+						}
+
+						Explosion_Create2(enemy.pos.x, enemy.pos.y);
+							PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+
+					}
+				}
+				break;
+			case 3:
+				if (HitCupsule(Enemy_GetCollision(i), player.DownCol))//下攻撃
+				{
+					if (enemy.damagecol == true)
+					{
+						player.karacombo = false;
+						player.commbo += 1;
+						player.comboflame = 0;
+						Game_AddScore(200 + (player.commbo * 20));
+						// 当たってる
+						enemy.hp -= 1;
+						Enemy_AddDamage(i);
+						enemy.damagecol = false;
+						enemy.rot = 0.0f;
+
+						player.leftstop = false;
+						player.stop = false;
+
+						//se
+
+						enemy.nock = TRUE;
+						if (enemy.hp >= 1) {
+							enemy.t = 0;
+						}
+
+						Explosion_Create(enemy.pos.x + 50.0f, enemy.pos.y, 1.75f);			
+							PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+
+					}
+				}
+				break;
+			case 4:
+				if (player.slidemuki == 0) {
+					if (HitCupsule(Enemy_GetCollision(i), player.SlideCol[0]))//スライディング
+					{
+						if (enemy.damagecol == true)
+						{
+							player.karacombo = false;
+							player.commbo += 1;
+							player.comboflame = 0;
+							Game_AddScore(200 + (player.commbo * 20));
+							// 当たってる
+							enemy.hp -= 1;
+							Enemy_AddDamage(i);
+							enemy.damagecol = false;
+							enemy.rot = 0.0f;
+
+							player.leftstop = false;
+							player.stop = false;
+
+							//se
+							enemy.nock = TRUE;
+							if (enemy.hp >= 1) {
+								enemy.t = 0;
+							}
+
+							Explosion_Create2(enemy.pos.x, enemy.pos.y);
+								PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+
+						}
+					}
+				}
+				else if (player.slidemuki == 1) {
+					if (HitCupsule(Enemy_GetCollision(i), player.SlideCol[1]))//初動
+					{
+						if (enemy.damagecol == true)
+						{
+							player.karacombo = false;
+							player.commbo += 1;
+							player.comboflame = 0;
+							Game_AddScore(200 + (player.commbo * 20));
+							// 当たってる
+							enemy.hp -= 1;
+							Enemy_AddDamage(i);
+							enemy.damagecol = false;
+							enemy.rot = 0.0f;
+
+							player.leftstop = false;
+							player.stop = false;
+
+							//se
+							enemy.nock = TRUE;
+							if (enemy.hp >= 1) {
+								enemy.t = 0;
+							}
+
+							Explosion_Create2(enemy.pos.x, enemy.pos.y);
+								PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+						}
+					}
+				}
+
+				break;
+
+			default:
+				break;
 			}
 		}
 		else {
@@ -404,58 +530,19 @@ void Collision_Player_vs_Enemy(void)
 			{
 
 				if (player.pos.x >= enemy.pos.x) {//敵が左
-					player.stop[1] = true;
-					enemy.stop[0] = true;
+					player.leftstop = true;
+					enemy.enemystop = true;
 				}
 				else {//敵が右
-					player.stop[0] = true;
-					enemy.stop[1] = true;
+					player.stop = true;
+					enemy.enemyleftstop = true;
 				}
 			}
 
-
 		}
+		EnemyInfoMatch(enemy, i);
 	}
 }
-
-//void Collision_Player_vs_Boss(void)
-//{
-//	for (int i = 0; i < BOSS_COUNT; i++) {
-//
-//		// エネミーは有効か？
-//		if (!Boss_IsEnable(i)) {
-//			continue;
-//		}
-//
-//		if (player.firstAT) {
-//			// プレイヤーのコリジョンとエネミーのコリジョン
-//			if (HitCupsule(Boss_GetCollision(i), player.foot[0]))
-//			{
-//				if (Player_GetAttackcol())
-//				{
-//					Game_AddScore(200);
-//					// 当たってる
-//					Boss_AddDamage(1);
-//					Boss_NockBack(i);
-//					//当たり判定を消す
-//					Player_boolfalse();
-//				}
-//			}
-//			if (HitCupsule(Boss_GetCollision(i), player.foot[1]))
-//			{
-//				if (Player_GetAttackcol())
-//				{
-//					Game_AddScore(200);
-//					// 当たってる
-//					Boss_AddDamage(1);
-//					Boss_NockBack(i);
-//					//当たり判定を消す
-//					Player_boolfalse();
-//				}
-//			}
-//		}
-//	}
-//}
 
 void Collision_Enemy_hand_vs_Player(void)
 {
@@ -471,101 +558,54 @@ void Collision_Enemy_hand_vs_Player(void)
 			if (HitCupsule(player.collision, Bullet_GetCollision(i)))
 			{
 				// 当たってる
-				Player_AddDamage(1);
+				//Player_AddDamage(1);
+				PlaySound(SOUND_LABEL_SE_DAMAGE);
+				player.hitpoint -= 1;
+				player.color = 0xffff0000;
+				if (player.pos.x < GetHundPos(i)) {
+					Explosion_Create5(90.0f, player.pos.y,0.0f);
+				}
+				if (player.pos.x >= GetHundPos(i)) {
+					Explosion_Create5(-90.0f, player.pos.y, 3.0f);
+				}
 			}
 
 			Bullet_IscoolFlase(i);
 		}
 	}
 }
-/*void Collision_Player_vs_EnemyBullet(void)
+
+void Collision_Boss_hand_vs_Player(void)
 {
-	for (int i = 0; i < ENEMYBULLET_MAX; i++) {
-
-		// エネミーは有効か？
-		if (!EnemyBullet_IsEnable(i)) {
-			continue;
-		}
-
-		// プレイヤーのコリジョンとエネミーのコリジョン
-		if (HitC(Player_GetCollision(), EnemyBullet_GetCollision(i)))
-		{
-			// 当たってる
-			Player_AddDamage(30);
-
-			// 爆発エフェクトの作成
-			Explosion_Create(EnemyBullet_GetCollision(i)->cx, EnemyBullet_GetCollision(i)->cy);
-
-			// 弾の消滅処理
-			EnemyBullet_Destroy(i);
-		}
-	}
-}
-
-void Collision_Player_vs_EnemyLaser(void)
-{
-	for (int i = 0; i < ENEMYLASER_MAX; i++) {
-
-		// エネミーは有効か？
-		if (!EnemyLaser_IsEnable(i)) {
-			continue;
-		}
-
-		// プレイヤーのコリジョンとレーザーのコリジョン
-		if (HitCupsule(Player_GetCollision(), EnemyLaser_GetCollision(i)))
-		{
-			// 当たってる
-			Player_AddDamage(10);
-
-			// 爆発エフェクトの作成
-			Explosion_Create(Player_GetCollision()->cx, Player_GetCollision()->cy);
-		}
-	}
-}
-
-void Collision_Bullet_vs_Enemy(void)
-{
-	for (int i = 0; i < BULLET_MAX; i++)
+	for (int i = 0; i < BOSSBULLET_MAX; i++)
 	{
 		// 弾は有効か？
-		if (!Bullet_IsEnable(i)) {
+		if (!BossBullet_IsEnable(i))
 			continue;
-		}
 
-		for (int j = 0; j < ENEMY_COUNT; j++)
+		if (BossBullet_Iscool(i) == true)
 		{
-			// エネミーは有効か？
-			if (!Enemy_IsEnable(j)) {
-				continue;
-			}
-
 			// 弾のコリジョンとエネミーのコリジョン
-			if (HitCircle(Bullet_GetCollision(i), Enemy_GetCollision(j)))
+			if (HitCupsule(player.collision, BossBullet_GetCollision(i)))
 			{
 				// 当たってる
-
-				// 得点の追加・敵の消滅カウントの追加
-
-
-				Game_AddScore(100);
-				Game_AddKillCount();
-
-				// 爆発エフェクトの作成
-				Explosion_Create(Enemy_GetCollision(j)->cx, Enemy_GetCollision(j)->cy);
-
-				// 敵の消滅処理
-				Enemy_Destroy(j);
-
-				// 弾の消滅処理
-				Bullet_Destroy(i);
-
-				// この弾の処理は終了
-				break;
+				//Player_AddDamage(1);
+				PlaySound(SOUND_LABEL_SE_DAMAGE);
+				player.hitpoint -= 1;
+				player.color = 0xffff0000;
+				//Explosion_Create5(player.pos.x, player.pos.y);
+				if (player.pos.x < GetHandPos(i)) {
+					Explosion_Create5(90.0f, player.pos.y, 0.0f);
+				}
+				if (player.pos.x >= GetHandPos(i)) {
+					Explosion_Create5(-90.0f, player.pos.y, 3.0f);
+				}
 			}
+
+			BossBullet_IscoolFlase(i);
 		}
 	}
-}*/
-
+}
 
 bool Collision_HitCheck_TileMap(D3DXVECTOR2 dst, D3DXVECTOR2* pOut)
 {
@@ -592,127 +632,272 @@ bool Collision_HitCheck_TileMap(D3DXVECTOR2 dst, D3DXVECTOR2* pOut)
 	return hit;
 }
 
-/*void Collision_Player_vs_BossBullet(void)
+void Collision_Player_vs_Boss(void)
 {
-	for (int i = 0; i < BOSSBULLET_MAX; i++) {
-
-		// ボスは有効か？
-		if (!BossBullet_IsEnable(i)) {
+	for (int i = 0; i < BOSS_COUNT; i++) {
+		boss = GetBoss(i);
+		// エネミーは有効か？
+		if (!Boss_IsEnable(i)) {
 			continue;
 		}
 
-		// プレイヤーのコリジョンとボスのコリジョン
-		if (HitCircle(Player_GetCollision(), BossBullet_GetCollision(i)))
-		{
-			// 当たってる
-			Player_AddDamage(30);
-
-			// 爆発エフェクトの作成
-			Explosion_Create(BossBullet_GetCollision(i)->cx, BossBullet_GetCollision(i)->cy);
-
-			// 弾の消滅処理
-			BossBullet_Destroy(i);
-		}
-	}
-}
-
-void Collision_Player_vs_BossLaser(void)
-{
-	for (int i = 0; i < BOSSLASER_MAX; i++) {
-
-		// ボスは有効か？
-		if (!BossLaser_IsEnable(i)) {
-			continue;
-		}
-
-		// プレイヤーのコリジョンとレーザーのコリジョン
-		if (HitCupsule(Player_GetCollision(), BossLaser_GetCollision(i)))
-		{
-			// 当たってる
-			Player_AddDamage(10);
-
-			// 爆発エフェクトの作成
-			Explosion_Create(Player_GetCollision()->cx, Player_GetCollision()->cy);
-		}
-	}
-}
-
-void Collision_Bullet_vs_Boss(void)
-{
-
-	int bosslife = 0;
-	for (int i = 0; i < BULLET_MAX; i++)
-	{
-
-		// 弾は有効か？
-		if (!Bullet_IsEnable(i)) {
-			continue;
-		}
-
-		for (int j = 0; j < BOSS_COUNT; j++)
-		{
-			// ボスは有効か？
-			if (!Boss_IsEnable(j)) {
-				continue;
-			}
-
-			// 弾のコリジョンとボスのコリジョン
-			if (HitCircle(Bullet_GetCollision(i), Boss_GetCollision(j)))
+		if (!player.com == 0) {
+			switch (player.com)
 			{
-				// 当たってる
+			case 1:
+				if (player.muki == 1) {
+					if (HitCupsule(Boss_GetCollision(i), player.first[0]))//初動
+					{
+						if (player.attackcol == true)
+						{
+							player.karacombo = false;
+							player.commbo += 1;
+							player.comboflame = 0;
+							Game_AddScore(200 + (player.commbo * 20));
+							// 当たってる
+							boss.hp -= 1;
+							Boss_AddDamage(i);
+							player.attackcol = false;
 
+							player.leftstop = false;
+							player.stop = false;
 
-				Game_AddScore(100);
-
-
-				// 得点の追加・敵の消滅カウントの追加
-
-				bosslife = Boss_AddDamage(500);
-
-				if (bosslife <= 0) {
-					Game_AddKillBossCount();
-
-
-					// 爆発エフェクトの作成
-					Explosion_Create(Enemy_GetCollision(j)->cx, Boss_GetCollision(j)->cy);
-
-					// 敵の消滅処理
-					Boss_Destroy(j);
-
-
+							//se
+							if (player.pos.x >= boss.pos.x) {//敵が左
+								Explosion_CreateDown(enemy.pos.x + 100.0f, enemy.pos.y+300.0f);
+								PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+							}
+							else
+							{
+								Explosion_CreateDown(boss.pos.x - 100.0f, boss.pos.y);
+								PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+							}
+						}
+					}
 				}
+				else if (player.muki == 0) {
+					if (HitCupsule(Boss_GetCollision(i), player.first[1]))//初動
+					{
+						if (player.attackcol == true)
+						{
 
-				// 弾の消滅処理
-				Bullet_Destroy(i);
+							player.karacombo = false;
+							player.commbo += 1;
+							player.comboflame = 0;
+							Game_AddScore(200 + (player.commbo * 20));
+							// 当たってる
+							boss.hp -= 1;
+							Boss_AddDamage(i);
+							player.attackcol = false;
+
+							player.leftstop = false;
+							player.stop = false;
+
+							//se
+
+							if (player.pos.x >= enemy.pos.x) {//敵が左
+								Explosion_CreateDown(boss.pos.x + 100.0f, boss.pos.y);
+								PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+							}
+							else
+							{
+								Explosion_CreateDown(boss.pos.x - 100.0f, boss.pos.y);
+								PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+							}
 
 
-				// この弾の処理は終了
+
+						}
+					}
+				}
 				break;
 
+			case 2:
+
+				if (HitCupsule(Boss_GetCollision(i), player.UpCol))//上攻撃
+				{
+					if (player.attackcol == true)
+					{
+						player.karacombo = false;
+						player.commbo += 1;
+						player.comboflame = 0;
+						Game_AddScore(200 + (player.commbo * 20));
+						// 当たってる
+						boss.hp -= 1;
+						Boss_AddDamage(i);
+						player.attackcol = false;
+
+						player.leftstop = false;
+						player.stop = false;
+
+						Explosion_Create2(boss.pos.x, boss.pos.y);
+						PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+
+					}
+				}
+				break;
+			case 3:
+				if (HitCupsule(Boss_GetCollision(i), player.DownCol))//下攻撃
+				{
+					if (player.attackcol == true)
+					{
+						player.karacombo = false;
+						player.commbo += 1;
+						player.comboflame = 0;
+						Game_AddScore(200 + (player.commbo * 20));
+						// 当たってる
+						boss.hp -= 1;
+						Boss_AddDamage(i);
+						player.attackcol = false;
+
+						player.leftstop = false;
+						player.stop = false;
+
+						Explosion_Create(boss.pos.x + 50.0f, boss.pos.y, 1.75f);
+						PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+
+					}
+				}
+				break;
+			case 4:
+				if (player.slidemuki == 0) {
+					if (HitCupsule(Boss_GetCollision(i), player.SlideCol[0]))//スライディング
+					{
+						if (player.attackcol == true)
+						{
+							player.karacombo = false;
+							player.commbo += 1;
+							player.comboflame = 0;
+							Game_AddScore(200 + (player.commbo * 20));
+							// 当たってる
+							boss.hp -= 1;
+							Boss_AddDamage(i);
+							player.attackcol = false;
+
+							player.leftstop = false;
+							player.stop = false;
+
+							Explosion_Create2(boss.pos.x, boss.pos.y);
+							PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+
+						}
+					}
+				}
+				else if (player.slidemuki == 1) {
+					if (HitCupsule(Boss_GetCollision(i), player.SlideCol[1]))//初動
+					{
+						if (player.attackcol == true)
+						{
+							player.karacombo = false;
+							player.commbo += 1;
+							player.comboflame = 0;
+							Game_AddScore(200 + (player.commbo * 20));
+							// 当たってる
+							boss.hp -= 1;
+							Boss_AddDamage(i);
+							player.attackcol = false;
+
+							player.leftstop = false;
+							player.stop = false;
+
+							Explosion_Create2(boss.pos.x, boss.pos.y);
+							PlaySound(SOUND_LABEL_SE_SHORT_PUNCH);
+
+						}
+					}
+				}
+
+				break;
+
+			default:
+				break;
+			}
+		}
+		else {
+			if (HitCupsule(Boss_GetCollision(i), player.collision))
+			{
+
+				if (player.pos.x >= boss.pos.x) {//敵が左
+					player.leftstop = true;
+					boss.bossstop = true;
+				}
+				else {//敵が右
+					player.stop = true;
+					boss.bossleftstop = true;
+				}
+			}
+
+		}
+		BossInfoMatch(boss, i);
+	}
+}
+
+void Collision_Bosslaser_vs_Player(void)
+{
+	for (int i = 0; i < BOSSLASER_MAX; i++)
+	{
+		// 弾は有効か？
+		if (!BossLaser_IsEnable(i))
+			continue;
+
+		if (BossLaser_Iscoool(0) == true)
+		{
+			// 弾のコリジョンとエネミーのコリジョン
+			if (HitCupsule(player.collision, BossLaser_GetCollision(i)) && !Get_laserhit())
+			{
+				Laserhit(true);
+				// 当たってる
+				PlaySound(SOUND_LABEL_SE_DAMAGE);
+				player.hitpoint -= 3;
+				player.color = 0xffff0000;
+			}
+
+
+		}
+	}
+}
+
+void Collision_Bossflame_vs_Player(void)
+{
+	for (int i = 0; i < BOSSFLAME_MAX; i++)
+	{
+		// 弾は有効か？
+		if (!BossFlame_IsEnable(i))
+			continue;
+
+		if (BossFlame_Iscoool(i) == true)
+		{
+			// 弾のコリジョンとエネミーのコリジョン
+			if (HitCupsule(player.collision, BossFlame_GetCollision(0)) && !Get_flamehit())
+			{
+				Flamehit(true);
+				// 当たってる
+				player.hitpoint -= 2;
 
 			}
 		}
 	}
-}*/
+}
 
-//void Collision_Player_vs_BossBullet(void)
-//{
-//	for (int i = 0; i < BOSSBULLET_MAX; i++)
-//	{
-//		// 弾は有効か？
-//		if (!BossBullet_IsEnable(i))
-//			continue;
-//
-//		if (BossBullet_Iscool(i) == true)
-//		{
-//			// 弾のコリジョンとエネミーのコリジョン
-//			if (HitCupsule(player.collision, BossBullet_GetCollision(i)))
-//			{
-//				// 当たってる
-//				Player_AddDamage(1);
-//			}
-//
-//			BossBullet_IscoolFlase(i);
-//		}
-//	}
-//}
+void Collision_Bossthunder_vs_Player(void)
+{
+	for (int i = 0; i < BOSSTHUNDER_MAX; i++)
+	{
+		// 弾は有効か？
+		if (!BossThunder_IsEnable(i))
+			continue;
+
+		if (BossThunder_Iscoool(i) == true)
+		{
+			// 弾のコリジョンとエネミーのコリジョン
+			if (HitCupsule(player.collision, BossThunder_GetCollision(0)) && !Get_Thunderhit())
+			{
+				thunderhit(true);
+				// 当たってる
+				player.hitpoint -= 1;
+
+			}
+
+		}
+	}
+}

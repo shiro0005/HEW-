@@ -55,7 +55,35 @@ void Field1_Update(void)
 	//player構造体の情報を取得
 	player = GetPlayer();
 
-	field[0].pos.x -= player.speed.x;//背景をプレイヤーの移動と合わせる
+	if (!player.camerastop) {
+		if (!(507.0f < player.pos.x && player.pos.x < 517.0f))
+		{
+			if (player.pos.x > SCREEN_WIDTH / 2) {
+				if (player.speed.x >= 5.0f) {
+					player.speed.x *= 2;
+				}
+			}
+			if (player.pos.x < SCREEN_WIDTH / 2) {
+				if (player.speed.x <= -5.0f) {
+					player.pos.x *= -1;
+				}
+			}
+		}
+		else
+		{
+			if (player.speed.x < 0) {
+				player.speed.x = 0.0f;
+			}
+		}
+			field[0].pos.x -= player.speed.x;//背景をプレイヤーの移動と合わせる
+	}
+
+	//if (field[0].pos.x >= -5.0f&&field[0].pos.x <= 5.0f&&!player.camerastop) {
+	//	//player.camerastop = true;
+	//	ChengeCamerastop(player.camerastop);
+	//}
+	
+
 	if (field[0].pos.x != 0) {
 		if (field[0].pos.x > 0) {
 			field[1].pos.x = field[0].pos.x - 1024.0f;
@@ -74,36 +102,6 @@ void Field1_Update(void)
 		field[0].pos.x = field[1].pos.x + 1024.0f;
 	}
 
-
-
-	//count++;
-	//if (count == 100)
-	//{
-	//	StopScroll = 0;
-	//}
-	//if (field[0].flg_change == 1)
-	//{
-	//	field[0].type = (rand() % (BGNUM - 2)) + 1;//BG1をランダム抽選
-	//	field[0].flg_change = 0;
-	//	field1count++;
-	//}
-	//if (field[1].flg_change == 1)
-	//{
-	//	field[1].type = (rand() % (BGNUM - 2)) + 1;//BG2をランダム抽選
-	//	field[1].flg_change = 0;
-	//	field1count++;
-	//}
-	//if (field1count == MAXCOUNT)
-	//{
-	//	field[1].type = 4;
-	//}
-	//if (StopScroll == 0)
-	//{
-	//	field[0].speed = field[0].speed + GetPlayerSpeed();
-	//	field[1].speed = field[1].speed + GetPlayerSpeed();
-	//	/*MinuPlayerSpeed(GetPlayerSpeed());*/
-	//}
-
 }
 
 void Field1_Finalize(void)
@@ -113,79 +111,7 @@ void Field1_Finalize(void)
 
 void Field1_Draw(void)
 {
-	Sprite_Draw(TEXTURE_INDEX_BGMAIN, field[0].pos.x, 0.0f);
-
 	Sprite_Draw(TEXTURE_INDEX_BGMAIN, field[1].pos.x, 0.0f);
 
-	/*if (field[0].flg_move == 1)
-	{
-		if (StopScroll == 0)
-			field[0].pos.y = field[0].pos.y + field[0].speed;
-		switch (field[0].type)
-		{
-		case 0:Sprite_Draw(TEXTURE_INDEX_BGMAIN, 0, field[0].pos.y);
-			break;
-		case 1:Sprite_Draw(TEXTURE_INDEX_BGMAIN, 0, field[0].pos.y);
-			break;
-		case 2:Sprite_Draw(TEXTURE_INDEX_BGMAIN, 0, field[0].pos.y);
-			break;
-		case 3:Sprite_Draw(TEXTURE_INDEX_BGMAIN, 0, field[0].pos.y);
-			break;
-		case 4:Sprite_Draw(TEXTURE_INDEX_BGMAIN, 0, field[0].pos.y);
-			break;
-		}
-		if (field[0].pos.y > 0 - UISIZE)
-		{
-			field[1].flg_move = 1;
-		}
-		if (field[0].pos.y > 1080 - UISIZE)
-		{
-			field[0].pos.y = -1080 + field[0].speed - UISIZE;
-			field[0].flg_change = 1;
-			field[0].flg_move = 0;
-		}
-
-		if (field[0].type == 4 && field[0].pos.y > 0)
-		{
-			field[0].pos.y = 0;
-			StopScroll = 1;
-		}
-	}
-
-	if (field[1].flg_move == 1)
-	{
-		if (StopScroll == 0)
-			field[1].pos.y = field[1].pos.y + field[1].speed;
-		switch (field[1].type)
-		{
-		case 0:Sprite_Draw(TEXTURE_INDEX_BGMAIN, 0, field[1].pos.y);
-			break;
-		case 1:Sprite_Draw(TEXTURE_INDEX_BGMAIN, 0, field[1].pos.y);
-			break;
-		case 2:Sprite_Draw(TEXTURE_INDEX_BGMAIN, 0, field[1].pos.y);
-			break;
-		case 3:Sprite_Draw(TEXTURE_INDEX_BGMAIN, 0, field[1].pos.y);
-			break;
-		case 4:Sprite_Draw(TEXTURE_INDEX_BGMAIN, 0, field[1].pos.y);
-			break;
-		}
-		if (field[1].pos.y > 0 - UISIZE)
-		{
-			field[0].flg_move = 1;
-		}
-		if (field[1].pos.y > 1080 - UISIZE)
-		{
-			field[1].pos.y = -1080;
-			field[1].flg_change = 1;
-			field[1].flg_move = 0;
-		}
-
-		if (field[1].type == 4 && field[1].pos.y > 0)
-		{
-			field[1].pos.y = 0;
-			StopScroll = 1;
-		}
-	}
-	*/
+	Sprite_Draw(TEXTURE_INDEX_BGLOOP, field[0].pos.x, 0.0f);
 }
-
